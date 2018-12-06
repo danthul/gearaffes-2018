@@ -2,27 +2,23 @@
 **************************************************************************************
 # Configuration Information
 
-Hardware name           Port  Hub
-left_back_drive         1     1
-right_back_drive        0     1
-left_front_drive        3     1
-right_front_drive       2     1
-
-elevator_motor          1     2
-arm_drive_motor         0     2
-
-elevator_limit_bottom   D3    1
-elevator_limit_top      D1    1
-arm_limit_bottom        D5    1
-
-extender_hex_motor
-collector_hex_motor
-
-left_arm_servo          S1    1
-right_arm_servo         S0    1
-
-left_arm_sensor         i3    2
-right_arm_sensor        i1    1
+| Device name           | Port | Hub |
+|-----------------------|------|-----|
+| left_back_drive       | 1    | 1   |
+| right_back_drive      | 0    | 1   |
+| left_front_drive      | 3    | 1   |
+| right_front_drive     | 2    | 1   |
+| elevator_motor        | 1    | 2   |
+| arm_drive_motor       | 0    | 2   |
+| elevator_limit_bottom | D3   | 1   |
+| elevator_limit_top    | D1   | 1   |
+| arm_limit_bottom      | D5   | 1   |
+| extender_hex_motor    |      |     |
+| collector_hex_moto    |      |     |
+| left_arm_servo        | S1   | 1   |
+| right_arm_servo       | S0   | 1   |
+| left_arm_sensor       | i3   | 2   |
+| right_arm_sensor      | i1   | 1   |
 
 **************************************************************************************
 # Release Information
