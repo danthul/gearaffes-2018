@@ -1,45 +1,28 @@
 ## Welcome!
-This GitHub repository contains the source code that is used to build an Android app to control a *FIRST* Tech Challenge competition robot.  To use this SDK, download/clone the entire project to your local computer.
+**************************************************************************************
+# Configuration Information
 
-If you are new to the *FIRST* Tech Challenge software and control system, you should visit the online wiki to learn how to install, configure, and use the software and control system:
+Hardware name           Port  Hub
+left_back_drive         1     1
+right_back_drive        0     1
+left_front_drive        3     1
+right_front_drive       2     1
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/ftctechnh/ftc_app/wiki
+elevator_motor          1     2
+arm_drive_motor         0     2
 
-Note that the wiki is an "evergreen" document that is constantly being updated and edited.  It contains the most current information about the *FIRST* Tech Challenge software and control system.
+elevator_limit_bottom   D3    1
+elevator_limit_top      D1    1
+arm_limit_bottom        D5    1
 
-## Downloading the Project
-It is important to note that this repository is large and can take a long time and use a lot of space to download. If you would like to save time and space, there are some options that you can choose to download only the most current version of the Android project folder:
+extender_hex_motor
+collector_hex_motor
 
-* If you are a git user, *FIRST* recommends that you use the --depth command line argument to only clone the most current version of the repository:
+left_arm_servo          S1    1
+right_arm_servo         S0    1
 
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone --depth=1 https://github.com/ftctechnh/ftc_app.git</p>
-
-* Or, if you prefer, you can use the "Download Zip" button available through the main repository page.  Downloading the project as a .ZIP file will keep the size of the download manageable.
-
-* You can also download the project folder (as a .zip or .tar.gz archive file) from the Downloads subsection of the Releases page for this repository.
-
-Once you have downloaded and uncompressed (if needed) your folder, you can use Android Studio to import the folder  ("Import project (Eclipse ADT, Gradle, etc.)").
-
-## Getting Help
-### User Documentation and Tutorials
-*FIRST* maintains an online wiki with information and tutorials on how to use the *FIRST* Tech Challenge software and robot control system.  You can access the wiki at the following address:
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/ftctechnh/ftc_app/wiki
-
-### Javadoc Reference Material
-The Javadoc reference documentation for the FTC SDK is now available online.  Visit the following URL to view the FTC SDK documentation as a live website:
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://ftctechnh.github.io/ftc_app/doc/javadoc/index.html    
-
-Documentation for the FTC SDK is also included with this repository.  There is a subfolder called "doc" which contains several subfolders:
-
- * The folder "apk" contains the .apk files for the FTC Driver Station and FTC Robot Controller apps.
- * The folder "javadoc" contains the JavaDoc user documentation for the FTC SDK.
-
-### Online User Forum
-For technical questions regarding the SDK, please visit the FTC Technology forum:
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://ftcforum.usfirst.org/forumdisplay.php?156-FTC-Technology
+left_arm_sensor         i3    2
+right_arm_sensor        i1    1
 
 **************************************************************************************
 # Release Information
@@ -70,7 +53,7 @@ Version 4.2 (built on 18.10.30)
  * Block Development Tool Changes
      - Includes a fix for a problem with the Velocity blocks that were reported in the FTC Technology forum (Blocks Programming subforum).
      - Change the "Save completed successfully." message to a white color so it will contrast with a green background.
-     - Fixed the "Download image" feature so it will work if there are text blocks in the op mode.    
+     - Fixed the "Download image" feature so it will work if there are text blocks in the op mode.
  * Introduce support for Google's TensorFlow Lite technology for object detetion for 2018-2019 game.
      - TensorFlow lite can recognize Gold Mineral and Silver Mineral from 2018-2019 game.
      - Example Java and Block op modes are included to show how to determine the relative position of the gold block (left, center, right).
@@ -88,7 +71,7 @@ Changes include:
  * Improvements to Telemetry.addData block with "text" socket.
  * Updated Blocks sample op mode list to include Rover Ruckus Vuforia example.
  * Update SDK library version number.
-     
+
 **************************************************************************************
 # Release Information
 **************************************************************************************
@@ -96,7 +79,7 @@ Changes include:
 Version 4.0 (released on 18.09.12)
 
 Changes include:
- * Initial support for UVC compatible cameras 
+ * Initial support for UVC compatible cameras
     - If UVC camera has a unique serial number, RC will detect and enumerate by serial number.
     - If UVC camera lacks a unique serial number, RC will only support one camera of that type connected.
     - Calibration settings for a few cameras are included (see TeamCode/src/main/res/xml/teamwebcamcalibrations.xml for details).
@@ -105,7 +88,7 @@ Changes include:
          + This does not appear to present any problems for the REV Robotics Control Hub.
 	 + This does seem to create stability problems when using some cameras with an Android phone-based Robot Controller.
 	 + FTC Tech Team is investigating options to mitigate this issue with the phone-based Robot Controllers.
-    - Updated sample Vuforia Navigation and VuMark Op Modes to demonstrate how to use an internal phone-based camera and an external UVC webcam.    
+    - Updated sample Vuforia Navigation and VuMark Op Modes to demonstrate how to use an internal phone-based camera and an external UVC webcam.
 
  * Support for improved motor control.
     - REV Robotics Expansion Hub firmware 1.8 and greater will support a feed forward mechanism for closed loop motor control.
@@ -128,14 +111,14 @@ Changes include:
     - If an Expansion Hub accidentally gets "bricked" the Robot Controller app is now more likely to recognize the Hub when it scans the USB bus.
         + Robot Controller app should be able to detect an Expansion Hub, even if it accidentally was bricked in a previous update attempt.
 	+ Robot Controller app should be able to install the firmware onto the Hub, even if if accidentally was bricked in a previous update attempt.
- 
+
  * Resiliency
     - FTC software can detect and enable an FTDI reset feature that is available with REV Robotics v1.8 Expansion Hub firmware and greater.
         + When enabled, the Expansion Hub can detect if it hasn't communicated with the Robot Controller over the FTDI (USB) connection.
 	+ If the Hub hasn't heard from the Robot Controller in a while, it will reset the FTDI connection.
 	+ This action helps system recover from some ESD-induced disruptions.
     - Various fixes to improve reliability of FTC software.
-     
+
  * Blocks
     - Fixed errors with string and list indices in blocks export to java.
     - Support for USB connected UVC webcams.
@@ -162,13 +145,13 @@ Changes include:
 	    * Match log files are stored in /sdcard/FIRST/matlogs on the Robot Controller.
 	    * Once an op mode run is complete, the Match Number is cleared.
 	    * This is a convenient way to create a separate match log with statements only related to a specific op mode run.
- 
+
  * New Devices
     - Support for REV Robotics Blinkin LED Controller.
     - Support for REV Robotics 2m Distance Sensor.
     - Added configuration option for REV 20:1 HD Hex Motor.
     - Added support for a REV Touch Sensor (no longer have to configure as a generic digital device).
-    
+
  * Miscellaneous
     - Fixed some errors in the definitions for acceleration and velocity in our javadoc documentation.
     - Added ability to play audio files on Driver Station
@@ -178,7 +161,7 @@ Changes include:
     - Added an external sample Op Mode that demonstrates how to use the REV Robotics 2m Laser Distance Sensor.
     - Added an external sample Op Mode that demonstrates how to use the REV Robotics Blinkin LED Controller.
     - Re-categorized external Java sample Op Modes to "TeleOp" instead of "Autonomous".
-    
+
 Known issues:
  * Initial support for UVC compatible cameras
     - UVC cameras seem to draw significant amount of current from the USB bus.
@@ -271,20 +254,20 @@ Changes with verion 3.3 include:
     - Sample op modes can be selected as a template when creating new op mode.
     - Fixes and changes to complete hardware setup feature.
     - Updated (and more useful) onBot welcome message.
-    
+
 Known issues:
  * Android Studio
     - After updating to the new v3.3 Android Studio project folder, if you get error messages indicating "InvalidVirtualFileAccessException" then you might need to do a File->Invalidate Caches / Restart to clear the error.
  * OnBot Java
     - Sometimes when you push the build button to build all op modes, the RC returns an error message that the build failed.  If you press the build button a second time, the build typically suceeds.
-    
+
 **************************************************************************************
 
 Version 3.2 (built on 17.08.02)
 
 This version of the software introduces the "OnBot Java" Development Tool.  Similar to the FTC Blocks Development Tool, the FTC OnBot Java Development Tool allows a user to create, edit and build op modes dynamically using only a Javascript-enabled web browser.
 
-The OnBot Java Development Tool is an integrated development environment (IDE) that is served up by the Robot Controller.  Op modes are created and edited using a Javascript-enabled browser (Google Chromse is recommended).  Op modes are saved on the Robot Controller Android device directly.  
+The OnBot Java Development Tool is an integrated development environment (IDE) that is served up by the Robot Controller.  Op modes are created and edited using a Javascript-enabled browser (Google Chromse is recommended).  Op modes are saved on the Robot Controller Android device directly.
 
 The OnBot Java Development Tool provides a Java programming environment that does NOT need Android Studio.
 
@@ -370,7 +353,7 @@ Changes include:
     - Blocks execute after while-opModeIsActive loop (to allow for cleanup before exiting op mode).
     - Added gyro integratedZValue block.
     - Fixes bug with projects page for Firefox browser.
-    - Added IsSpeaking block to AndroidTextToSpeech.  
+    - Added IsSpeaking block to AndroidTextToSpeech.
  * Implements support for the REV Robotics Expansion Hub
     - Implements support for integral REV IMU (physically installed on I2C bus 0, uses same Bosch BNO055 9 axis absolute orientation sensor as Adafruit 9DOF abs orientation sensor).    - Implements support for REV color/range/light sensor.
     - Provides support to update Expansion Hub firmware through FTC SDK.
@@ -430,7 +413,7 @@ Version 2.5 (internal release on released on 16.12.13)
      - Added type safety to blocks for LightSensor.
      - Added type safety to blocks for LinearOpMode.
      - Added type safety to blocks for MagneticFlux.
-     - Added type safety to blocks for MatrixF.     
+     - Added type safety to blocks for MatrixF.
      - Added type safety to blocks for MrI2cCompassSensor.
      - Added type safety to blocks for MrI2cRangeSensor.
      - Added type safety to blocks for OpticalDistanceSensor.
@@ -565,7 +548,7 @@ Version 2.00 (released on 16.08.19)
  * Standardized units in analog input.
  * Cleaned up code for existing analog sensor classes.
  * setChannelMode and getChannelMode were REMOVED from the DcMotorController class.  This is important - we no longer set the motor modes through the motor controller.
- * setMode and getMode were added to the DcMotor class.  
+ * setMode and getMode were added to the DcMotor class.
  * ContinuousRotationServo class has been added to the FTC SDK.
  * Range.clip() method has been overloaded so it can support this operation for int, short and byte integers.
  * Some changes have been made (new methods added) on how a user can access items from the hardware map.
@@ -645,7 +628,7 @@ Release 16.02.09
     - If user attempts to start/restart RC with one or more module missing, it will display a warning but still start up.
     - When running an op mode, if one or more modules gets disconnected, the RC & DS will display warnings,and robot will keep on working in spite of the missing module(s).
     - If a disconnected module gets physically reconnected the RC will auto detect the module and the user will regain control of the recently connected module.
-    - Warning messages are more helpful (identifies the type of module that’s missing plus its USB serial number).   
+    - Warning messages are more helpful (identifies the type of module that’s missing plus its USB serial number).
  * Code changes to fix the null gamepad reference when users try to reference the gamepads in the init() portion of their op mode.
  * NXT light sensor output is now properly scaled.  Note that teams might have to readjust their light threshold values in their op modes.
  * On DS user interface, gamepad icon for a driver will disappear if the matching gamepad is disconnected or if that gamepad gets designated as a different driver.
