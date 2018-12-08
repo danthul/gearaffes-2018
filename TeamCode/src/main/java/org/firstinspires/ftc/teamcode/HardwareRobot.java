@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *   As the arm servo approaches 0, the arm position moves up (away from the floor).
  *   As the claw servo approaches 0, the claw opens up (drops the game element).
  */
-public class HardwareRobot
+class HardwareRobot
 {
     // Declare OpMode members.
     DcMotor leftBackDrive;
@@ -54,14 +54,14 @@ public class HardwareRobot
 
 
     /* Local OpMode members. */
-    HardwareMap hwMap  = null;
+    private HardwareMap hwMap  = null;
 
     /* Constructor */
-    public HardwareRobot() {
+    HardwareRobot() {
     }
 
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap) {
+    void init(HardwareMap ahwMap) {
         // save reference to HW Map
         hwMap = ahwMap;
 
@@ -112,6 +112,7 @@ public class HardwareRobot
         //arm motor
         armDriveMotor = hwMap.get(DcMotor.class, "arm_drive_motor");
         armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
@@ -120,18 +121,17 @@ public class HardwareRobot
 //        armLimitBottom.setMode(DigitalChannel.Mode.INPUT);
 
         // extender
-//        extenderHexMotor = hwMap.get(DcMotor.class, "extender_hex_motor");
-//        extenderHexMotor.setDirection(DcMotor.Direction.FORWARD);
-//        extenderHexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extenderHexMotor = hwMap.get(DcMotor.class, "extender_hex_motor");
+        extenderHexMotor.setDirection(DcMotor.Direction.FORWARD);
+        extenderHexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // collector
-//        collectorHexMotor = hwMap.get(DcMotor.class, "collector_hex_motor");
-//        collectorHexMotor.setDirection(DcMotor.Direction.FORWARD);
-//        collectorHexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//        collectorHexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //collector
+        collectorHexMotor = hwMap.get(DcMotor.class, "collector_hex_motor");
+        collectorHexMotor.setDirection(DcMotor.Direction.FORWARD);
+        collectorHexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        collectorHexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // ************** Sensor Arms ************************* //
         // servos

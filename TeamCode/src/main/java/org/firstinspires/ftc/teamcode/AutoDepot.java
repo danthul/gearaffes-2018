@@ -60,26 +60,26 @@ public class AutoDepot extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    boolean leftArmFoundMineral = false;
-    boolean centerFoundMineral = false;
-    boolean rightArmFoundMineral = false;
+    private boolean leftArmFoundMineral = false;
+    private boolean centerFoundMineral = false;
+    private boolean rightArmFoundMineral = false;
 
-    String leftMineralType;
-    String centerMineralType;
-    String rightMineralType;
+    private String leftMineralType;
+    private String centerMineralType;
+    private String rightMineralType;
 
     //the distance where the robot should stop and make the call whether gold or white
-    final double samplingDistance = 10;
+    private final double samplingDistance = 10;
     //stop the arm if it gets to this point and hasn't found a mineral so it doesn't accidentally knock it
-    final double maxArmSensorPosition = 0.6;
+    private final double maxArmSensorPosition = 0.6;
 
-    double leftMineralSensorDistance;
-    double centerMineralSensorDistance;
-    double rightMineralSensorDistance;
-    double leftArmPosition = 0.0;
-    double rightArmPosition = 1.0;
-    double armSpeedIncrement = 0.05;
-    double blueLimit = 29;
+    private double leftMineralSensorDistance;
+    private double centerMineralSensorDistance;
+    private double rightMineralSensorDistance;
+    private double leftArmPosition = 0.0;
+    private double rightArmPosition = 1.0;
+    private double armSpeedIncrement = 0.03;
+    private double blueLimit = 29;
 
 
     @Override
@@ -99,14 +99,13 @@ public class AutoDepot extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            rightArmPosition = rightArmPosition - 0.005;
+            //rightArmPosition = rightArmPosition - 0.005;
             robot.leftSensorArm.setPosition(leftArmPosition);
             robot.rightSensorArm.setPosition(rightArmPosition);
 
-            telemetry.addData("left servo pos",  robot.leftSensorArm.getPosition());
-            telemetry.addData("right servo pos",  robot.rightSensorArm.getPosition());
-            telemetry.addData("left sensor distance", leftMineralSensorDistance);
-            telemetry.update();
+//            telemetry.addData("left servo pos",  robot.leftSensorArm.getPosition());
+//            telemetry.addData("right servo pos",  robot.rightSensorArm.getPosition());
+//            telemetry.addData("left sensor distance", leftMineralSensorDistance);
             sleep(50);
 
             //raise elevator
@@ -114,23 +113,42 @@ public class AutoDepot extends LinearOpMode {
             if (robot.elevatorLimitTop.getState()) {
                 telemetry.addData("Elevator", "Lowering from hook");
             } else {
+                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                telemetry.addData("centerColor", robot.centerSensorColor.blue());
                 telemetry.addData("Elevator", "Reached the ground");
+                telemetry.update();
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
                 sleep(500);
 
-                //drive to left to get off hook
-                encoderDrive(0.5, 6, 0, 6);
+                driveWithTimer("left", 0.3, 200);
 
-                //drive forwards to get to blocks
-                encoderDrive(0.5, 10, 10, 6);
+                sleep(500);
 
-                //drive to right to recenter
-                encoderDrive(0.5, 0, 3, 6);
+                driveWithTimer("forward", 0.3, 500);
+
+                sleep(500);
+
+                driveWithTimer("right", 0.3, 300);
+
+                sleep(500);
+
+                driveWithTimer("stop", 0.0, 500);
+
+
+//                //drive to left to get off hook
+//                encoderDrive(0.5, 6, 0, 6);
+//
+//                //drive forwards to get to blocks
+//                encoderDrive(0.5, 10, 10, 6);
+//
+//                //drive to right to recenter
+//                encoderDrive(0.5, 0, 3, 6);
 
                 //drive forward until we reach mineral
                 // TODO
+
 
                 //sample center block
                 if (robot.centerSensorDistance.getDistance(DistanceUnit.CM) < samplingDistance) {
@@ -145,6 +163,7 @@ public class AutoDepot extends LinearOpMode {
                         encoderDrive(0.5, -10, -10, 6);
                     } else {
                         centerMineralType = "white";
+                        sleep(2000);
                         //if not gold extend sensor arms
                         //loop until we find minerals or arms hit their maximums
                         while (opModeIsActive() && (!leftArmFoundMineral || !rightArmFoundMineral || (leftMineralSensorDistance < maxArmSensorPosition && rightMineralSensorDistance < maxArmSensorPosition))) {
@@ -169,10 +188,19 @@ public class AutoDepot extends LinearOpMode {
                                     rightMineralType = "gold";
                                 }
                             } else {
-                                rightArmPosition = rightArmPosition + armSpeedIncrement;
+                                rightArmPosition = rightArmPosition - armSpeedIncrement;
                             }
                             robot.leftSensorArm.setPosition(leftArmPosition);
                             robot.rightSensorArm.setPosition(rightArmPosition);
+                            sleep(300);
+                            telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                            telemetry.addData("centerColor", robot.centerSensorColor.blue());
+                            telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
+                            telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
+                            telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
+                            telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
+                            telemetry.addData("Elevator", "Reached the ground");
+                            telemetry.update();
                             idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
                         }
                         //we now have minerals in left and white - if one is gold knock it off if both are gold ignore
@@ -187,6 +215,7 @@ public class AutoDepot extends LinearOpMode {
                             sleep(500);
                             robot.rightSensorArm.setPosition(1.0);
                         }
+                        sleep(300);
                     }
                 }
 
@@ -212,31 +241,77 @@ public class AutoDepot extends LinearOpMode {
     }
 
     protected void drive(String direction, double power) {
-        if (direction.equals("forward")) {
-            robot.leftFrontDrive.setPower(-power);
-            robot.rightBackDrive.setPower(-power);
-            robot.rightFrontDrive.setPower(-power);
-            robot.leftBackDrive.setPower(-power);
-        } else if (direction.equals("backward")) {
-            robot.leftFrontDrive.setPower(power);
-            robot.rightBackDrive.setPower(power);
-            robot.rightFrontDrive.setPower(power);
-            robot.leftBackDrive.setPower(power);
-        } else if (direction.equals("left")) {
-            robot.leftFrontDrive.setPower(power);
-            robot.rightBackDrive.setPower(power);
-            robot.rightFrontDrive.setPower(-power);
-            robot.leftBackDrive.setPower(-power);
-        } else if (direction.equals("right")) {
-            robot.leftFrontDrive.setPower(-power);
-            robot.rightBackDrive.setPower(-power);
-            robot.rightFrontDrive.setPower(power);
-            robot.leftBackDrive.setPower(power);
-        } else { //direction could equal stop (or anything else)
-            robot.leftFrontDrive.setPower(0);
-            robot.rightBackDrive.setPower(0);
-            robot.rightFrontDrive.setPower(0);
-            robot.leftBackDrive.setPower(0);
+        switch (direction) {
+            case "forward":
+                robot.leftFrontDrive.setPower(-power);
+                robot.rightBackDrive.setPower(-power);
+                robot.rightFrontDrive.setPower(-power);
+                robot.leftBackDrive.setPower(-power);
+                break;
+            case "backward":
+                robot.leftFrontDrive.setPower(power);
+                robot.rightBackDrive.setPower(power);
+                robot.rightFrontDrive.setPower(power);
+                robot.leftBackDrive.setPower(power);
+                break;
+            case "left":
+                robot.leftFrontDrive.setPower(power);
+                robot.rightBackDrive.setPower(power);
+                robot.rightFrontDrive.setPower(-power);
+                robot.leftBackDrive.setPower(-power);
+                break;
+            case "right":
+                robot.leftFrontDrive.setPower(-power);
+                robot.rightBackDrive.setPower(-power);
+                robot.rightFrontDrive.setPower(power);
+                robot.leftBackDrive.setPower(power);
+                break;
+            default:  //direction could equal stop (or anything else)
+                robot.leftFrontDrive.setPower(0);
+                robot.rightBackDrive.setPower(0);
+                robot.rightFrontDrive.setPower(0);
+                robot.leftBackDrive.setPower(0);
+                break;
+        }
+    }
+
+    protected void drivePosition(String direction, int position) {
+        int startingLeftFrontPosition = robot.leftFrontDrive.getCurrentPosition();
+        int startingLeftBackPosition = robot.leftBackDrive.getCurrentPosition();
+        int startingRightFrontPosition = robot.rightFrontDrive.getCurrentPosition();
+        int startingRightBackPosition = robot.rightBackDrive.getCurrentPosition();
+
+        switch (direction) {
+            case "forward":
+                robot.leftFrontDrive.setTargetPosition(-position + startingLeftFrontPosition);
+                robot.rightBackDrive.setTargetPosition(-position + startingLeftBackPosition);
+                robot.rightFrontDrive.setTargetPosition(-position + startingRightFrontPosition);
+                robot.leftBackDrive.setTargetPosition(-position + startingRightBackPosition);
+                break;
+            case "backward":
+                robot.leftFrontDrive.setTargetPosition(position + startingLeftFrontPosition);
+                robot.rightBackDrive.setTargetPosition(position + startingLeftBackPosition);
+                robot.rightFrontDrive.setTargetPosition(position + startingRightFrontPosition);
+                robot.leftBackDrive.setTargetPosition(position + startingRightBackPosition);
+                break;
+            case "left":
+                robot.leftFrontDrive.setTargetPosition(position + startingLeftFrontPosition);
+                robot.rightBackDrive.setTargetPosition(position + startingLeftBackPosition);
+                robot.rightFrontDrive.setTargetPosition(-position + startingRightFrontPosition);
+                robot.leftBackDrive.setTargetPosition(-position + startingRightBackPosition);
+                break;
+            case "right":
+                robot.leftFrontDrive.setTargetPosition(-position + startingLeftFrontPosition);
+                robot.rightBackDrive.setTargetPosition(-position + startingLeftBackPosition);
+                robot.rightFrontDrive.setTargetPosition(position + startingRightFrontPosition);
+                robot.leftBackDrive.setTargetPosition(position + startingRightBackPosition);
+                break;
+            default:  //direction could equal stop (or anything else)
+                robot.leftFrontDrive.setPower(0);
+                robot.rightBackDrive.setPower(0);
+                robot.rightFrontDrive.setPower(0);
+                robot.leftBackDrive.setPower(0);
+                break;
         }
     }
 

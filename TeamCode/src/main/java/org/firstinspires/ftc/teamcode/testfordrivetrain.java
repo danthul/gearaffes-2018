@@ -56,14 +56,13 @@ public class testfordrivetrain extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    HardwareRobot robot   = new HardwareRobot();
+    private HardwareRobot robot   = new HardwareRobot();
     private int hexMotorCPR = 288; //rev hex core motor has 288 counts per revolution
 
     //local variables
     double hexPower = 0;
     double maxHexPower = 2.0;
-    double elevatorLowPower = 0.4;
-    double elevatorHighPower = 1.0;
+
     double normalize(double number) {
         if (number > 1) {
             return 1;
@@ -108,11 +107,12 @@ public class testfordrivetrain extends OpMode
      */
     @Override
     public void loop() {
-        double elevatorPower = 0;
-
+        double elevatorPower;
+        double elevatorHighPower = 1.0;
+        double elevatorLowPower = 0.4;
         double maxSpeed = 0.5;
 
-        /** Drive train **/
+        /* Drive train **/
         // Setup a variable for each drive wheel to save power level for telemetry
         robot.leftFrontDrive.setPower(normalize(gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
         robot.rightFrontDrive.setPower(normalize(gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
@@ -120,14 +120,15 @@ public class testfordrivetrain extends OpMode
         robot.rightBackDrive.setPower(normalize(gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
 
 
-        /** Elevator section **/
-        if(gamepad1.y && robot.elevatorLimitTop.getState() == true ) {
+        /* Elevator section **/
+
+        if(gamepad1.y && robot.elevatorLimitTop.getState()) {
             //if top sensor isn't hit and y is pressed, move elevator up at low power
             elevatorPower = -elevatorLowPower;
-        } else if (gamepad1.a && robot.elevatorLimitBottom.getState() == true) {
+        } else if (gamepad1.a && robot.elevatorLimitBottom.getState()) {
             //if bottom sensor isn't hit and a is pressed, move elevator down at low power
             elevatorPower = elevatorLowPower;
-        } else if (gamepad1.x && robot.elevatorLimitBottom.getState() == true) {
+        } else if (gamepad1.x && robot.elevatorLimitBottom.getState()) {
             //if bottom sensor isn't hit and x is pressed, move elevator down at high power
             elevatorPower = elevatorHighPower;
         } else {
@@ -136,14 +137,48 @@ public class testfordrivetrain extends OpMode
 
         robot.elevatorMotor.setPower(elevatorPower);
 
-        /** Arm Hex Motors **/
+        /* Arm Hex Motors **/
+        /* Arm extender **/
+//        if(gamepad2.y) {
+//            //if top sensor isn't hit and y is pressed, move elevator up at low power
+//            elevatorPower = -elevatorLowPower;
+//        } else if (gamepad1.a && robot.elevatorLimitBottom.getState() == true) {
+//            //if bottom sensor isn't hit and a is pressed, move elevator down at low power
+//            elevatorPower = elevatorLowPower;
+//        } else if (gamepad1.x && robot.elevatorLimitBottom.getState() == true) {
+//            //if bottom sensor isn't hit and x is pressed, move elevator down at high power
+//            elevatorPower = elevatorHighPower;
+//        } else {
+//            elevatorPower = 0;
+//        }
+//
+//        robot.elevatorMotor.setPower(elevatorPower);
+
+        /* Arm Drive Motor **/
+        if (gamepad2.a) {
+            robot.armDriveMotor.setPower(0.5);
+        } else if (gamepad2.y) {
+            robot.armDriveMotor.setPower(-0.5);
+        } else {
+            robot.armDriveMotor.setPower(0.0);
+        }
 
 
-        /** Arm servos - collectors **/
+        /* Arm collector **/
+        if(gamepad2.x) {
+            //if top sensor isn't hit and y is pressed, move elevator up at low power
+            robot.collectorHexMotor.setPower(1.0);
+        } else if(gamepad2.b) {
+            //if top sensor isn't hit and y is pressed, move elevator up at low power
+            robot.collectorHexMotor.setPower(-1.0);
+        } else {
+            robot.collectorHexMotor.setPower(0);
+        }
 
-
-        /** Telemetry Data **/
+        /* Telemetry Data **/
         // Show the elapsed game time and wheel power.
+        telemetry.addData("armDriveMotor Position", robot.armDriveMotor.getCurrentPosition());
+        telemetry.addData("extenderHexMotor Position", robot.extenderHexMotor.getCurrentPosition());
         telemetry.addData("Status", "Run Time: " + runtime.toString());
 //        telemetry.addData("Hex Position",  "Hex Position: " + bottomHexMotor.getCurrentPosition());
 
