@@ -125,7 +125,7 @@ class HardwareRobot
         extenderHexMotor.setDirection(DcMotor.Direction.FORWARD);
         extenderHexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //collector
         collectorHexMotor = hwMap.get(DcMotor.class, "collector_hex_motor");

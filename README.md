@@ -13,8 +13,8 @@
 | elevator_limit_bottom | D3   | 1   |
 | elevator_limit_top    | D1   | 1   |
 | arm_limit_bottom      | D5   | 1   |
-| extender_hex_motor    |      |     |
-| collector_hex_moto    |      |     |
+| extender_hex_motor    | 3    | 2   |
+| collector_hex_moto    | 2    | 2   |
 | left_arm_servo        | S1   | 1   |
 | right_arm_servo       | S0   | 1   |
 | left_arm_sensor       | i3   | 2   |

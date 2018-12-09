@@ -139,30 +139,29 @@ public class testfordrivetrain extends OpMode
 
         /* Arm Hex Motors **/
         /* Arm extender **/
-//        if(gamepad2.y) {
-//            //if top sensor isn't hit and y is pressed, move elevator up at low power
-//            elevatorPower = -elevatorLowPower;
-//        } else if (gamepad1.a && robot.elevatorLimitBottom.getState() == true) {
-//            //if bottom sensor isn't hit and a is pressed, move elevator down at low power
-//            elevatorPower = elevatorLowPower;
-//        } else if (gamepad1.x && robot.elevatorLimitBottom.getState() == true) {
-//            //if bottom sensor isn't hit and x is pressed, move elevator down at high power
-//            elevatorPower = elevatorHighPower;
-//        } else {
-//            elevatorPower = 0;
-//        }
-//
-//        robot.elevatorMotor.setPower(elevatorPower);
+        //robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y) * 0.5);
+
+        double left_stick_position;
+        if (robot.extenderHexMotor.getCurrentPosition() >= 0 && gamepad2.left_stick_y > 0) {
+            left_stick_position = 0;
+        } else if (robot.extenderHexMotor.getCurrentPosition() <= -1500 && gamepad2.left_stick_y < 0) {
+            left_stick_position = 0;
+        } else {
+            left_stick_position = gamepad2.left_stick_y;
+        }
+        robot.extenderHexMotor.setPower(normalize(left_stick_position) * 0.5);
+
+        robot.elevatorMotor.setPower(elevatorPower);
 
         /* Arm Drive Motor **/
-        if (gamepad2.a) {
-            robot.armDriveMotor.setPower(0.5);
-        } else if (gamepad2.y) {
-            robot.armDriveMotor.setPower(-0.5);
-        } else {
-            robot.armDriveMotor.setPower(0.0);
-        }
-
+//        if (gamepad2.a) {
+//            robot.armDriveMotor.setPower(0.5);
+//        } else if (gamepad2.y) {
+//            robot.armDriveMotor.setPower(-0.5);
+//        } else {
+//            robot.armDriveMotor.setPower(0.0);
+//        }
+        robot.armDriveMotor.setPower(normalize(gamepad2.right_stick_y) * 0.3);
 
         /* Arm collector **/
         if(gamepad2.x) {
@@ -179,15 +178,15 @@ public class testfordrivetrain extends OpMode
         // Show the elapsed game time and wheel power.
         telemetry.addData("armDriveMotor Position", robot.armDriveMotor.getCurrentPosition());
         telemetry.addData("extenderHexMotor Position", robot.extenderHexMotor.getCurrentPosition());
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
+//        telemetry.addData("Status", "Run Time: " + runtime.toString());
 //        telemetry.addData("Hex Position",  "Hex Position: " + bottomHexMotor.getCurrentPosition());
 
         //   telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
 
-        telemetry.addData("leftBackDrive Position", "Position: " + robot.leftBackDrive.getCurrentPosition());
-        telemetry.addData("rightBackDrive Position", "Position: " + robot.rightBackDrive.getCurrentPosition());
-        telemetry.addData("leftFrontDrive Position", "Position: " + robot.leftFrontDrive.getCurrentPosition());
-        telemetry.addData("rightFrontDrive Position", "Position: " + robot.rightFrontDrive.getCurrentPosition());
+//        telemetry.addData("leftBackDrive Position", "Position: " + robot.leftBackDrive.getCurrentPosition());
+//        telemetry.addData("rightBackDrive Position", "Position: " + robot.rightBackDrive.getCurrentPosition());
+//        telemetry.addData("leftFrontDrive Position", "Position: " + robot.leftFrontDrive.getCurrentPosition());
+//        telemetry.addData("rightFrontDrive Position", "Position: " + robot.rightFrontDrive.getCurrentPosition());
 
 //        telemetry.addData("range_left", String.format("%.01f mm", sensorRangeLeft.getDistance(DistanceUnit.MM)));
 //        telemetry.addData("range_right", String.format("%.01f mm", sensorRangeRight.getDistance(DistanceUnit.MM)));
