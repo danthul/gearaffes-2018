@@ -256,7 +256,7 @@ public class AutoDepot extends LinearOpMode {
             newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
             robot.leftFrontDrive.setTargetPosition(newLeftFrontTarget);
             robot.rightBackDrive.setTargetPosition(newRightBackTarget);
-            robot.leftFrontDrive.setTargetPosition(newLeftBackTarget);
+            robot.leftBackDrive.setTargetPosition(newLeftBackTarget);
             robot.rightFrontDrive.setTargetPosition(newRightFrontTarget);
 
             // Turn On RUN_TO_POSITION
