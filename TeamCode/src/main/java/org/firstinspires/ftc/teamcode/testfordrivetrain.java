@@ -113,15 +113,13 @@ public class testfordrivetrain extends OpMode
         double maxSpeed = 0.5;
 
         /* Drive train **/
-        // Setup a variable for each drive wheel to save power level for telemetry
-        robot.leftFrontDrive.setPower(normalize(gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
-        robot.rightFrontDrive.setPower(normalize(gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
-        robot.leftBackDrive.setPower(normalize(gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
-        robot.rightBackDrive.setPower(normalize(gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
+        robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
+        robot.rightFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
+        robot.leftBackDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
+        robot.rightBackDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
 
 
         /* Elevator section **/
-
         if(gamepad1.y && robot.elevatorLimitTop.getState()) {
             //if top sensor isn't hit and y is pressed, move elevator up at low power
             elevatorPower = -elevatorLowPower;
@@ -134,13 +132,9 @@ public class testfordrivetrain extends OpMode
         } else {
             elevatorPower = 0;
         }
-
         robot.elevatorMotor.setPower(elevatorPower);
 
-        /* Arm Hex Motors **/
         /* Arm extender **/
-        //robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y) * 0.5);
-
         double left_stick_position;
         if (robot.extenderHexMotor.getCurrentPosition() >= 0 && gamepad2.left_stick_y > 0) {
             left_stick_position = 0;
@@ -151,16 +145,7 @@ public class testfordrivetrain extends OpMode
         }
         robot.extenderHexMotor.setPower(normalize(left_stick_position) * 0.5);
 
-        robot.elevatorMotor.setPower(elevatorPower);
-
         /* Arm Drive Motor **/
-//        if (gamepad2.a) {
-//            robot.armDriveMotor.setPower(0.5);
-//        } else if (gamepad2.y) {
-//            robot.armDriveMotor.setPower(-0.5);
-//        } else {
-//            robot.armDriveMotor.setPower(0.0);
-//        }
         robot.armDriveMotor.setPower(normalize(gamepad2.right_stick_y) * 0.3);
 
         /* Arm collector **/

@@ -29,11 +29,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 /**
@@ -57,114 +60,334 @@ public class AutoCrater extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
+    private boolean leftArmFoundMineral = false;
+    private boolean rightArmFoundMineral = false;
+
+    private String leftMineralType = "white";
+    private String rightMineralType ="white";
+
+    //stop the arm if it gets to this point and hasn't found a mineral so it doesn't accidentally knock it
+    private final double maxArmSensorPosition = 0.6;
+
+    private double leftMineralSensorDistance;
+    private double rightMineralSensorDistance;
+    private double leftArmPosition = 0.0;
+    private double rightArmPosition = 1.0;
+    private double armSpeedIncrement = 0.03;
+    private double blueLimit = 29;
+    private double driveSpeed = 0.3;
+
 
     @Override
     public void runOpMode() {
-        robot.init(hardwareMap);
 
-        // int initialPosition = bottomHexMotor.getCurrentPosition();
+        robot.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
 
-        // telemetry.addData("Initial Position: ", initialPosition);
         telemetry.update();
 
-        //distance sensors
-        // sensorRangeLeft = hardwareMap.get(DistanceSensor.class, "left_distance_sensor");
-        // sensorRangeRight = hardwareMap.get(DistanceSensor.class, "right_distance_sensor");
+        robot.leftSensorArm.setPosition(leftArmPosition);
 
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
-
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            //rightArmPosition = rightArmPosition - 0.005;
+            robot.leftSensorArm.setPosition(leftArmPosition);
+            robot.rightSensorArm.setPosition(rightArmPosition);
 
-//            double averageDistance;
+            sleep(50);
 
-            //  bottomHexMotor.setPower(0.1);
-            //  bottomHexMotor.setTargetPosition(100);
-
-//            telemetry.addData("range_left", String.format("%.01f mm", sensorRangeLeft.getDistance(DistanceUnit.MM)));
-//            telemetry.addData("range_right", String.format("%.01f mm", sensorRangeRight.getDistance(DistanceUnit.MM)));
-//            telemetry.addData("Current Position: ", bottomHexMotor.getCurrentPosition());
             //raise elevator
-            robot.elevatorMotor.setPower(-0.2);
-            if (robot.elevatorLimitTop.getState() == true) {
-                telemetry.addData("elevatortop", "is Not Pressed");
+            robot.elevatorMotor.setPower(-0.4);
+            if (robot.elevatorLimitTop.getState()) {
+                telemetry.addData("Elevator", "Lowering from hook");
             } else {
-                telemetry.addData("elevatortop", "is Pressed");
+                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                telemetry.addData("centerColor", robot.centerSensorColor.blue());
+                telemetry.addData("Elevator", "Reached the ground");
+                telemetry.update();
                 robot.elevatorMotor.setPower(0.0);
 
+                //give it a half second to make sure elevator has stopped
                 sleep(500);
 
-                //drive forwards
+                // drive left to get off hook
+                telemetry.addData("left",0);
+                encoderDrive(driveSpeed, "left",3, 5);
+
+                //drive forward to clear hook
+                telemetry.addData("forward",0);
+                encoderDrive(driveSpeed, "forward", 3, 5);
 
 
-                //drive to left
-                drive("left",0.3,700);
+                //drive back to center
+                telemetry.addData("right",0);
+                encoderDrive(driveSpeed, "right", 2.5, 5);
 
-                //drive forwards
-                drive("forward", 0.3, 3000);
+                //move forward to block
+                telemetry.addData("forward",0);
+                encoderDrive(driveSpeed, "forward", 15.5, 5);
 
-                //stop
-                drive("forward", 0, 4000);
+                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                telemetry.addData("centerColor", robot.centerSensorColor.blue());
+                telemetry.update();
+                sleep(2000);
 
-//                bottomHexMotor.setTargetPosition(40);
-//                bottomHexMotor.setPower(1.0);
-//                sleep(4000);
-//                bottomHexMotor.setTargetPosition(0);
-//                bottomHexMotor.setPower(0.8);
-//                sleep(4000);
-//                bottomHexMotor.setPower(0.0);
+                //sample center block
+                if (robot.centerSensorColor.blue() < blueLimit) {
+                    //center mineral is gold!
+                    // drive forward to knock off middle mineral
+                    telemetry.addData("center mineral was gold!", "");
+                    telemetry.update();
+                    encoderDrive(driveSpeed, "forward", 5, 5);
+                    encoderDrive(driveSpeed, "backward", 5, 5);
+                } else {
+                    //center mineral wasn't gold
+                    telemetry.addData("center mineral was white", "");
+                    telemetry.update();
+                    //if not gold extend sensor arms
+                    //loop until we find minerals or arms hit their maximums
+                    while (opModeIsActive()
+                            && (!leftArmFoundMineral || !rightArmFoundMineral || (leftMineralSensorDistance < maxArmSensorPosition && rightMineralSensorDistance < maxArmSensorPosition))) {
+                        /* left arm sensor - starts at 0 fully extended is 1 */
+                        leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
+                        if (!Double.isNaN(leftMineralSensorDistance)) {
+                            leftArmFoundMineral = true;
+                        } else {
+                            leftArmPosition = leftArmPosition + armSpeedIncrement;
+                        }
 
-                //drive backwards
-                drive("backward", 0.3, 300);
+                        /* right arm sensor - starts at 1 fully extended is 0 */
+                        rightMineralSensorDistance = robot.rightSensorArmDistance.getDistance(DistanceUnit.CM);
+                        if (!Double.isNaN(rightMineralSensorDistance)) {
+                            rightArmFoundMineral = true;
+                        } else {
+                            rightArmPosition = rightArmPosition - armSpeedIncrement;
+                        }
 
-                //stop
-                drive("forward", 0, 4000);
+                        robot.leftSensorArm.setPosition(leftArmPosition);
+                        robot.rightSensorArm.setPosition(rightArmPosition);
+                        //add in a pause so the arms move slowly out
+                        telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
+                        telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
+                        telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
+                        telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
+                        telemetry.update();
+                        sleep(300);
+                        idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
+                    }
+                    //we now have minerals in left and white - if one is gold knock it off if both are gold ignore
+                    //TODO - maybe look to see whichever has the lowest blue content?
+                    if (leftArmFoundMineral && robot.leftSensorArmColor.blue() < 29) {
+                        robot.leftSensorArm.setPosition(1.0);
+                        sleep(500);
+                        robot.leftSensorArm.setPosition(0.0);
+                        robot.rightSensorArm.setPosition(1.0);
+                    } else if (rightArmFoundMineral && robot.leftSensorArmColor.blue() < 29) {
+                        robot.rightSensorArm.setPosition(0.0);
+                        sleep(500);
+                        robot.rightSensorArm.setPosition(1.0);
+                        robot.leftSensorArm.setPosition(0.0);
+                    }
+                    sleep(300);
+                }
+
+                //move backwards so we don't hit minerals
+                encoderDrive(driveSpeed, "backwards", 3, 2);
+                /*
+                 *
+                 * CRATER SPECIFIC CODE
+                 *
+                 */
+                //This is crater so extend arm to drop marker
+
+                //drive towards wall
+                encoderDrive(driveSpeed, "right", 40, 10);
+
+                //spin to orient along wall facing depot
+                encoderDrive(driveSpeed, "counter-clockwise", 15, 5);
+
+                //drive forward to depot
+                encoderDrive(driveSpeed, "forward", 40, 10);
+
+                robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.extenderHexMotor.setPower(0.5);
+                robot.extenderHexMotor.setTargetPosition(-1500);
+                while (opModeIsActive() && robot.extenderHexMotor.isBusy()) {
+                    telemetry.addData("Extending Arm", robot.extenderHexMotor.getCurrentPosition());
+                }
+                //eject marker
+                robot.collectorHexMotor.setPower(1.0);
+                sleep(1000);
+                robot.collectorHexMotor.setPower(0.0);
+                //retract arm
+                robot.extenderHexMotor.setTargetPosition(0);
+                while (opModeIsActive() && robot.extenderHexMotor.isBusy()) {
+                    telemetry.addData("Retracting Arm", robot.extenderHexMotor.getCurrentPosition());
+                }
+                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+                //drive backwards to crater
+                encoderDrive(driveSpeed, "backwards", 60, 10);
                 sleep(28000);
-
-
             }
-
             telemetry.update();
-
             idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
         }
     }
 
     /*
-     * set bottom hex after button press
+     *  Method to perform a relative move, based on encoder counts.
+     *  Encoders are not reset as the move is based on the current position.
+     *  Move will stop if any of three conditions occur:
+     *  1) Move gets to the desired position
+     *  2) Move runs out of time
+     *  3) Driver stops the opmode running.
      */
-    protected void drive(String direction, double power, long duration){
-        if (direction.equals("forward")) {
-            robot.leftFrontDrive.setPower(-power);
-            robot.rightBackDrive.setPower(-power);
-            robot.rightFrontDrive.setPower(-power);
-            robot.leftBackDrive.setPower(-power);
-        } else if (direction.equals("backward")) {
-            robot.leftFrontDrive.setPower(power);
-            robot.rightBackDrive.setPower(power);
-            robot.rightFrontDrive.setPower(power);
-            robot.leftBackDrive.setPower(power);
-        } else if (direction.equals("left")) {
-            robot.leftFrontDrive.setPower(power);
-            robot.rightBackDrive.setPower(power);
-            robot.rightFrontDrive.setPower(-power);
-            robot.leftBackDrive.setPower(-power);
-        } else if (direction.equals("right")) {
-            robot.leftFrontDrive.setPower(-power);
-            robot.rightBackDrive.setPower(-power);
-            robot.rightFrontDrive.setPower(power);
-            robot.leftBackDrive.setPower(power);
-        } else {
-            robot.leftFrontDrive.setPower(0);
-            robot.rightBackDrive.setPower(0);
-            robot.rightFrontDrive.setPower(0);
+    public void encoderDrive(double speed,
+                             String direction,
+                             double inches,
+                             double timeoutS) {
+        //drive encoder variables
+        final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // eg: Neverest Motor Encoder
+        final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
+        final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+        final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+                (WHEEL_DIAMETER_INCHES * 3.1415);
+        int newLeftBackTarget;
+        int newLeftFrontTarget;
+        int newRightBackTarget;
+        int newRightFrontTarget;
+
+        double lowerXSpeed = 0.625;
+        double lowerYSpeed = 0.4545;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+            //NOTE - leftFront/rightBack move together and leftBack/rightFront move together
+
+            switch (direction) {
+                case "forward": {
+                    // Determine new target position, and pass to motor controller
+                    newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() + (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    break;
+                }
+                case "backward": {
+                    // Determine new target position, and pass to motor controller
+                    newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() - (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    newRightBackTarget = robot.rightBackDrive.getCurrentPosition() - (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() - (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() - (int)((inches * lowerYSpeed) * COUNTS_PER_INCH);
+                    break;
+                }
+                case "left": {
+                    // Determine new target position, and pass to motor controller
+                    newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightBackTarget = robot.rightBackDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    break;
+                }
+                case "right": {
+                    // Determine new target position, and pass to motor controller
+                    newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    break;
+                }
+                case "clockwise": {
+                    // Determine new target position, and pass to motor controller
+                    newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightBackTarget = robot.rightBackDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    break;
+                }
+                case "counterClockwise": {
+                    // Determine new target position, and pass to motor controller
+                    newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() - (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int)((inches * lowerXSpeed) * COUNTS_PER_INCH);
+                    break;
+                }
+                default: {
+                    newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition();
+                    newRightBackTarget = robot.rightBackDrive.getCurrentPosition();
+                    newLeftBackTarget = robot.leftBackDrive.getCurrentPosition();
+                    newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition();
+                    break;
+                }
+            }
+
+
+            robot.leftFrontDrive.setTargetPosition(newLeftFrontTarget);
+            robot.rightBackDrive.setTargetPosition(newRightBackTarget);
+            robot.leftBackDrive.setTargetPosition(newLeftBackTarget);
+            robot.rightFrontDrive.setTargetPosition(newRightFrontTarget);
+
+            // Turn On RUN_TO_POSITION
+            robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            robot.leftFrontDrive.setPower(Math.abs(speed));
+            robot.rightBackDrive.setPower(Math.abs(speed));
+            robot.leftBackDrive.setPower(Math.abs(speed));
+            robot.rightFrontDrive.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and all motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.leftFrontDrive.isBusy() && robot.rightBackDrive.isBusy() && robot.leftBackDrive.isBusy() && robot.rightFrontDrive.isBusy() )) {
+
+                // Display it for the driver.
+                telemetry.addData("Target",  "Running to %7d :%7d :%7d :%7d",
+                        newLeftFrontTarget,
+                        newRightBackTarget,
+                        newLeftBackTarget,
+                        newRightFrontTarget);
+                telemetry.addData("Current",  "Running at %7d :%7d :%7d :%7d",
+                        robot.leftFrontDrive.getCurrentPosition(),
+                        robot.rightBackDrive.getCurrentPosition(),
+                        robot.leftBackDrive.getCurrentPosition(),
+                        robot.rightFrontDrive.getCurrentPosition()
+                );
+                telemetry.update();
+                idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
+            }
+
+            // Stop all motion;
             robot.leftBackDrive.setPower(0);
+            robot.rightBackDrive.setPower(0);
+            robot.leftFrontDrive.setPower(0);
+            robot.rightFrontDrive.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            sleep(250);   // optional pause after each move
         }
-        sleep(duration);
     }
 }
