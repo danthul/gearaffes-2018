@@ -114,7 +114,7 @@ public class HardwareRobot
         armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        armDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        armDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //arm limit switch
 //        armLimitBottom = hwMap.get(DigitalChannel.class, "arm_limit_bottom");

@@ -205,7 +205,7 @@ public class AutoDepot extends LinearOpMode {
                  */
                 //This is depot so extend arm to drop marker
                 robot.armDriveMotor.setPower(0.9);
-                robot.armDriveMotor.setTargetPosition(-400);
+                robot.armDriveMotor.setTargetPosition(400);
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
                     telemetry.addData("Raising Arm To Low Position", robot.armDriveMotor.getCurrentPosition());
@@ -213,7 +213,7 @@ public class AutoDepot extends LinearOpMode {
                 }
 
                 robot.extenderHexMotor.setPower(0.5);
-                robot.extenderHexMotor.setTargetPosition(-1500);
+                robot.extenderHexMotor.setTargetPosition(-1000);
                 robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //                    robot.extenderHexMotor.setPower(0.5);
 
@@ -227,22 +227,23 @@ public class AutoDepot extends LinearOpMode {
                 sleep(3000);
                 robot.collectorHexMotor.setPower(0.0);
 
-                robot.armDriveMotor.setTargetPosition(-2400);
+                robot.armDriveMotor.setTargetPosition(2000);
                 while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
                     telemetry.addData("Raising Arm To High Position", robot.extenderHexMotor.getCurrentPosition());
                     telemetry.update();
                 }
 
+                //retract arm
+                robot.extenderHexMotor.setTargetPosition(0);
+                //or maybe
+                //robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//                sleep(2000);
+//                robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
                 sleep(2000);
 
 
-//                //retract arm
-//                robot.extenderHexMotor.setTargetPosition(0);
-//                while (opModeIsActive() && robot.extenderHexMotor.isBusy()) {
-//                    telemetry.addData("Retracting Arm", robot.extenderHexMotor.getCurrentPosition());
-//                }
                 robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 //drive to left to wall
                 encoderDrive(driveSpeed, "left", 40, 10);
                 //spin clockwise 5 inches
