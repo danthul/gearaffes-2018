@@ -67,7 +67,7 @@ public class testfordrivetrain extends OpMode
             return number;
         }
     }
-
+    private double armTargetPos = -300;
 
 
     /*
@@ -106,6 +106,9 @@ public class testfordrivetrain extends OpMode
         double elevatorHighPower = 1.0;
         double elevatorLowPower = 0.4;
         double maxSpeed = 0.5;
+        double maxArmPosition = 0;
+        double minArmPosition = -2400;
+        double armStickFactor = 0.1;
 
         /* Drive train **/
         robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
@@ -113,6 +116,13 @@ public class testfordrivetrain extends OpMode
         robot.leftBackDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
         robot.rightBackDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
 
+        /* Process arm lift motor **/
+        armTargetPos = armTargetPos + (normalize(gamepad2.right_stick_y)) * armStickFactor;
+        if (armTargetPos < minArmPosition) { armTargetPos = minArmPosition; }
+        if (armTargetPos > maxArmPosition) { armTargetPos = maxArmPosition; }
+        robot.armDriveMotor.setPower(0.9);
+        robot.armDriveMotor.setTargetPosition((int)armTargetPos);
+        robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         /* Elevator section **/
         if(gamepad1.y && robot.elevatorLimitTop.getState()) {
@@ -145,7 +155,7 @@ public class testfordrivetrain extends OpMode
         //limit down to -300
 
         //limit up to -2400
-        robot.armDriveMotor.setPower(normalize(gamepad2.right_stick_y) * 0.7);
+        //robot.armDriveMotor.setPower(normalize(gamepad2.right_stick_y) * 0.7);
 
         /* Arm collector **/
         if(gamepad2.x) {
@@ -161,6 +171,7 @@ public class testfordrivetrain extends OpMode
         /* Telemetry Data **/
         // Show the elapsed game time and wheel power.
         telemetry.addData("armDriveMotor Position", robot.armDriveMotor.getCurrentPosition());
+        telemetry.addData("armDriveMotor Target Position", armTargetPos);
         telemetry.addData("extenderHexMotor Position", robot.extenderHexMotor.getCurrentPosition());
 //        telemetry.addData("Status", "Run Time: " + runtime.toString());
 //        telemetry.addData("Hex Position",  "Hex Position: " + bottomHexMotor.getCurrentPosition());
