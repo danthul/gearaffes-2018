@@ -57,11 +57,6 @@ public class testfordrivetrain extends OpMode
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private HardwareRobot robot   = new HardwareRobot();
-    private int hexMotorCPR = 288; //rev hex core motor has 288 counts per revolution
-
-    //local variables
-    double hexPower = 0;
-    double maxHexPower = 2.0;
 
     double normalize(double number) {
         if (number > 1) {
@@ -113,10 +108,10 @@ public class testfordrivetrain extends OpMode
         double maxSpeed = 0.5;
 
         /* Drive train **/
-        robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
-        robot.rightFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
-        robot.leftBackDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
-        robot.rightBackDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
+        robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
+        robot.rightFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
+        robot.leftBackDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
+        robot.rightBackDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
 
 
         /* Elevator section **/
@@ -135,18 +130,22 @@ public class testfordrivetrain extends OpMode
         robot.elevatorMotor.setPower(elevatorPower);
 
         /* Arm extender **/
-        double left_stick_position;
-        if (robot.extenderHexMotor.getCurrentPosition() >= 0 && gamepad2.left_stick_y > 0) {
-            left_stick_position = 0;
-        } else if (robot.extenderHexMotor.getCurrentPosition() <= -1500 && gamepad2.left_stick_y < 0) {
-            left_stick_position = 0;
-        } else {
-            left_stick_position = gamepad2.left_stick_y;
-        }
-        robot.extenderHexMotor.setPower(normalize(left_stick_position) * 0.5);
+        // range between 0 and -1500
+//        double left_stick_position;
+//        if (robot.extenderHexMotor.getCurrentPosition() >= 0 && gamepad2.left_stick_y > 0) {
+//            left_stick_position = 0;
+//        } else if (robot.extenderHexMotor.getCurrentPosition() <= -1500 && gamepad2.left_stick_y < 0) {
+//            left_stick_position = 0;
+//        } else {
+//            left_stick_position = gamepad2.left_stick_y;
+//        }
+        robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y) * 0.5);
 
         /* Arm Drive Motor **/
-        robot.armDriveMotor.setPower(normalize(gamepad2.right_stick_y) * 0.3);
+        //limit down to -300
+
+        //limit up to -2400
+        robot.armDriveMotor.setPower(normalize(gamepad2.right_stick_y) * 0.7);
 
         /* Arm collector **/
         if(gamepad2.x) {

@@ -63,9 +63,6 @@ public class AutoCrater extends LinearOpMode {
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
 
-    private String leftMineralType = "white";
-    private String rightMineralType ="white";
-
     //stop the arm if it gets to this point and hasn't found a mineral so it doesn't accidentally knock it
     private final double maxArmSensorPosition = 0.6;
 
@@ -85,9 +82,6 @@ public class AutoCrater extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         telemetry.update();
-
-        robot.leftSensorArm.setPosition(leftArmPosition);
-
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -126,16 +120,16 @@ public class AutoCrater extends LinearOpMode {
 
                 //drive back to center
                 telemetry.addData("right",0);
-                encoderDrive(driveSpeed, "right", 2.5, 5);
+                encoderDrive(driveSpeed, "right", 2.5, 3);
 
                 //move forward to block
                 telemetry.addData("forward",0);
-                encoderDrive(driveSpeed, "forward", 15.5, 5);
+                encoderDrive(driveSpeed, "forward", 15.0, 3);
 
                 telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
                 telemetry.addData("centerColor", robot.centerSensorColor.blue());
                 telemetry.update();
-                sleep(2000);
+                sleep(1000);
 
                 //sample center block
                 if (robot.centerSensorColor.blue() < blueLimit) {
@@ -182,22 +176,29 @@ public class AutoCrater extends LinearOpMode {
                     }
                     //we now have minerals in left and white - if one is gold knock it off if both are gold ignore
                     //TODO - maybe look to see whichever has the lowest blue content?
+                    //TODO - put a timeout here
                     if (leftArmFoundMineral && robot.leftSensorArmColor.blue() < 29) {
                         robot.leftSensorArm.setPosition(1.0);
                         sleep(500);
                         robot.leftSensorArm.setPosition(0.0);
                         robot.rightSensorArm.setPosition(1.0);
-                    } else if (rightArmFoundMineral && robot.leftSensorArmColor.blue() < 29) {
+                    } else if (rightArmFoundMineral && robot.rightSensorArmColor.blue() < 29) {
                         robot.rightSensorArm.setPosition(0.0);
                         sleep(500);
                         robot.rightSensorArm.setPosition(1.0);
                         robot.leftSensorArm.setPosition(0.0);
+                    } else {
+                        //couldn't find gold - retract both and drive forward to hit center
+                        robot.rightSensorArm.setPosition(1.0);
+                        robot.leftSensorArm.setPosition(0.0);
+                        encoderDrive(driveSpeed,"forward",3,2);
+                        encoderDrive(driveSpeed,"backward",3,2);
                     }
                     sleep(300);
                 }
-
                 //move backwards so we don't hit minerals
-                encoderDrive(driveSpeed, "backwards", 3, 2);
+                encoderDrive(driveSpeed, "backward", 2, 2);
+
                 /*
                  *
                  * CRATER SPECIFIC CODE
