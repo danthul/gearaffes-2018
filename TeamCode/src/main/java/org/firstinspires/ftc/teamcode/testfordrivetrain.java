@@ -67,7 +67,7 @@ public class testfordrivetrain extends OpMode
             return number;
         }
     }
-    private double armTargetPos = -300;
+
 
 
     /*
@@ -80,6 +80,7 @@ public class testfordrivetrain extends OpMode
 
         telemetry.addData(">>", "Press start to continue");
         telemetry.update();
+        robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /*
@@ -106,47 +107,12 @@ public class testfordrivetrain extends OpMode
         double elevatorHighPower = 1.0;
         double elevatorLowPower = 0.4;
         double maxSpeed = 0.5;
-        double minArmPosition = 0;
-        double maxArmPosition = 2400;
-        double maxArmPower = 0.9;
-        double minArmPower = 0.2;
 
         /* Drive train **/
-        robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
-        robot.rightFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
-        robot.leftBackDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
-        robot.rightBackDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
-
-        /* Process arm lift motor **/
-        double armPower;
-
-        double armCurrentPosition = robot.armDriveMotor.getCurrentPosition();
-        if (gamepad2.right_stick_y > 0) {
-            //lowering the arm set power to minimum
-            armPower = minArmPower;
-            telemetry.addData("lowering arm power is: ",armPower);
-            telemetry.update();
-        } else {
-            // raising the arm
-            // set arm power to a percentage of the arm position from the minimum (vertical)
-            // so at position 200 the power will be 0.825 -> 0.9 * ((2400-200)/2400)
-            // and at position 2000 the power will be 0.167 -> 0.9 * ((2400 - 2000)/2400)
-            // except the minimum power is 20% so the following would bump the last one up
-            armPower = maxArmPower * ((maxArmPosition - armCurrentPosition)/maxArmPosition);
-            if (armPower < minArmPower) armPower = minArmPower;
-            if (armPower > maxArmPower) armPower = maxArmPower;
-            telemetry.addData("raising arm power is: ",armPower);
-            telemetry.update();
-        }
-
-        robot.armDriveMotor.setPower(armPower);
-
-        armTargetPos = armTargetPos + (normalize(-gamepad2.right_stick_y));
-        if (armTargetPos < minArmPosition) { armTargetPos = minArmPosition; }
-        if (armTargetPos > maxArmPosition) { armTargetPos = maxArmPosition; }
-        robot.armDriveMotor.setTargetPosition((int)armTargetPos);
-//        robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
+        robot.rightFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
+        robot.leftBackDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
+        robot.rightBackDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
 
 
         /* Elevator section **/
@@ -159,6 +125,9 @@ public class testfordrivetrain extends OpMode
         } else if (gamepad1.x && robot.elevatorLimitBottom.getState()) {
             //if bottom sensor isn't hit and x is pressed, move elevator down at high power
             elevatorPower = elevatorHighPower;
+        } else if (gamepad1.b && robot.elevatorLimitTop.getState()) {
+            //if bottom sensor isn't hit and x is pressed, move elevator down at high power
+            elevatorPower = -elevatorHighPower;
         } else {
             elevatorPower = 0;
         }
@@ -174,13 +143,13 @@ public class testfordrivetrain extends OpMode
 //        } else {
 //            left_stick_position = gamepad2.left_stick_y;
 //        }
-        robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y) * 0.5);
+        robot.extenderHexMotor.setPower(normalize(-gamepad2.left_stick_y) * 0.5);
 
         /* Arm Drive Motor **/
         //limit down to -300
 
         //limit up to -2400
-        //robot.armDriveMotor.setPower(normalize(-gamepad2.right_stick_y) * 0.7);
+        robot.armDriveMotor.setPower(normalize(-gamepad2.right_stick_y) * 0.7);
 
         /* Arm collector **/
         if(gamepad2.x) {
@@ -196,7 +165,6 @@ public class testfordrivetrain extends OpMode
         /* Telemetry Data **/
         // Show the elapsed game time and wheel power.
         telemetry.addData("armDriveMotor Position", robot.armDriveMotor.getCurrentPosition());
-        telemetry.addData("armDriveMotor Target Position", armTargetPos);
         telemetry.addData("extenderHexMotor Position", robot.extenderHexMotor.getCurrentPosition());
 //        telemetry.addData("Status", "Run Time: " + runtime.toString());
 //        telemetry.addData("Hex Position",  "Hex Position: " + bottomHexMotor.getCurrentPosition());
@@ -223,7 +191,7 @@ public class testfordrivetrain extends OpMode
 //            telemetry.addData("elevatorbottom", "is Pressed");
 //        }
         telemetry.update();
-      }
+    }
 
     /*
      * Code to run ONCE after the driver hits STOP

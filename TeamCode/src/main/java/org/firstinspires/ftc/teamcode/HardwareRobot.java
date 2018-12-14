@@ -114,6 +114,8 @@ public class HardwareRobot
         armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //arm limit switch
@@ -125,7 +127,7 @@ public class HardwareRobot
         extenderHexMotor.setDirection(DcMotor.Direction.FORWARD);
         extenderHexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //collector
         collectorHexMotor = hwMap.get(DcMotor.class, "collector_hex_motor");
