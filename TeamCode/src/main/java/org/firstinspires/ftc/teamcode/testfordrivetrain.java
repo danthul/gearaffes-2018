@@ -143,7 +143,7 @@ public class testfordrivetrain extends OpMode
 //        } else {
 //            left_stick_position = gamepad2.left_stick_y;
 //        }
-        robot.extenderHexMotor.setPower(normalize(-gamepad2.left_stick_y) * 0.5);
+        robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y) * 1.0);
 
         /* Arm Drive Motor **/
         //limit down to -300

@@ -134,7 +134,7 @@ public class AutoDepot extends LinearOpMode {
                 telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
                 telemetry.addData("centerColor", robot.centerSensorColor.blue());
                 telemetry.update();
-                sleep(1000);
+                //sleep(1000);
 
                 //sample center block
 //                if (robot.centerSensorColor.blue() < blueLimit
@@ -207,7 +207,7 @@ public class AutoDepot extends LinearOpMode {
                         sleep(300);
                         robot.rightSensorArm.setPosition(1.0);
                         robot.leftSensorArm.setPosition(0.0);
-                        sleep(1000);
+                        sleep(300);
                         encoderDrive(driveSpeed,"forward",5,3);
                         encoderDrive(driveSpeed,"backward",5,3);
                     }
@@ -242,15 +242,15 @@ public class AutoDepot extends LinearOpMode {
                  */
                 //This is depot so extend arm to drop marker
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armDriveMotor.setTargetPosition(600);
-                robot.armDriveMotor.setPower(0.9);
+//                robot.armDriveMotor.setTargetPosition(200);
+//                robot.armDriveMotor.setPower(0.9);
 
-                while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
-                    telemetry.addData("Raising Arm To Low Position", robot.armDriveMotor.getCurrentPosition());
-//                    telemetry.update();
-                }
+//                while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
+//                    telemetry.addData("Raising Arm To Low Position", robot.armDriveMotor.getCurrentPosition());
+////                    telemetry.update();
+//                }
 
-                robot.extenderHexMotor.setPower(0.7);
+                robot.extenderHexMotor.setPower(1.0);
                 robot.extenderHexMotor.setTargetPosition(-1500);
 //                    robot.extenderHexMotor.setPower(0.5);
 
@@ -262,11 +262,17 @@ public class AutoDepot extends LinearOpMode {
 //                    telemetry.update();
 //                }
 
-                sleep(7000);
+                telemetry.addData("extending",0);
+
+                sleep(4000);
+//                robot.armDriveMotor.setTargetPosition(0);
+//                robot.armDriveMotor.setPower(0.9);
 
                 //eject marker
+                telemetry.addData("ejecting",0);
+                telemetry.update();
                 robot.collectorHexMotor.setPower(-1.0);
-                sleep(3000);
+                sleep(4000);
                 robot.collectorHexMotor.setPower(0.0);
 //                robot.armDriveMotor.setPower(0.7);
 //                robot.armDriveMotor.setTargetPosition(2000);
