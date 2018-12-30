@@ -111,12 +111,11 @@ public class HardwareRobot
         // ************** Collector Arm ************************* //
         //arm motor
         armDriveMotor = hwMap.get(DcMotor.class, "arm_drive_motor");
-        armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        armDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //arm limit switch
 //        armLimitBottom = hwMap.get(DigitalChannel.class, "arm_limit_bottom");
@@ -124,10 +123,10 @@ public class HardwareRobot
 
         // extender
         extenderHexMotor = hwMap.get(DcMotor.class, "extender_hex_motor");
-        extenderHexMotor.setDirection(DcMotor.Direction.FORWARD);
+        extenderHexMotor.setDirection(DcMotor.Direction.REVERSE);
         extenderHexMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //collector
         collectorHexMotor = hwMap.get(DcMotor.class, "collector_hex_motor");
