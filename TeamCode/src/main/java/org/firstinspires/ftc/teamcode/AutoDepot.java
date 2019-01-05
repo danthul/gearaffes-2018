@@ -231,7 +231,7 @@ public class AutoDepot extends LinearOpMode {
                  */
                 //This is depot so extend arm to drop marker
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armDriveMotor.setTargetPosition(200);
+                robot.armDriveMotor.setTargetPosition(250);
                 robot.armDriveMotor.setPower(0.9);
 
 //                while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
@@ -240,7 +240,7 @@ public class AutoDepot extends LinearOpMode {
 //                }
 
                 robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-1700);
+                robot.extenderHexMotor.setTargetPosition(-1800);
 //                    robot.extenderHexMotor.setPower(0.5);
 
 //                while (opModeIsActive()) {

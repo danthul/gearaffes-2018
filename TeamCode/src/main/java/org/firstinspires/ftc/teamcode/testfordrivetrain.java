@@ -60,6 +60,7 @@ public class testfordrivetrain extends OpMode
     double elevatorHighPower = 1.0;
     double elevatorLowPower = 0.4;
     double maxSpeed = 0.5;
+    double armDrivePower = 0;
     boolean isExtenderBusy = false;
     boolean isArmBusy = false;
 
@@ -144,46 +145,54 @@ public class testfordrivetrain extends OpMode
 
 
 //        /* Arm drive and extender **/
-        if(gamepad2.x) {
-            //Collecting position (extend and down)
-            robot.armDriveMotor.setTargetPosition(300);
-            robot.armDriveMotor.setPower(0.4);
-            robot.extenderHexMotor.setTargetPosition(-800);
-            robot.extenderHexMotor.setPower(1.0);
-        }
-        if(gamepad2.y) {
-            //Travelling position (retract and raise)
-            robot.armDriveMotor.setTargetPosition(1000);
-            robot.armDriveMotor.setPower(0.6);
-            robot.extenderHexMotor.setTargetPosition(-100);
-            robot.extenderHexMotor.setPower(1.0);
-        }
-        if(gamepad2.b) {
-            //Scoring position (extend and raise)
-            robot.armDriveMotor.setTargetPosition(1800);
-            robot.armDriveMotor.setPower(0.6);
-            robot.extenderHexMotor.setTargetPosition(-800);
-            robot.extenderHexMotor.setPower(1.0);
-        }
-        if(gamepad2.a) {
-            //Reset to starting position (retract and lower)
-            robot.armDriveMotor.setTargetPosition(100);
-            robot.armDriveMotor.setPower(0.6);
-            robot.extenderHexMotor.setTargetPosition(-10);
-            robot.extenderHexMotor.setPower(1.0);
-        }
+//        if(gamepad2.x) {
+//            //Collecting position (extend and down)
+//            robot.armDriveMotor.setTargetPosition(300);
+//            robot.armDriveMotor.setPower(0.4);
+//            robot.extenderHexMotor.setTargetPosition(-800);
+//            robot.extenderHexMotor.setPower(1.0);
+//        }
+//        if(gamepad2.y) {
+//            //Travelling position (retract and raise)
+//            robot.armDriveMotor.setTargetPosition(1000);
+//            robot.armDriveMotor.setPower(0.6);
+//            robot.extenderHexMotor.setTargetPosition(-100);
+//            robot.extenderHexMotor.setPower(1.0);
+//        }
+//        if(gamepad2.b) {
+//            //Scoring position (extend and raise)
+//            robot.armDriveMotor.setTargetPosition(1800);
+//            robot.armDriveMotor.setPower(0.6);
+//            robot.extenderHexMotor.setTargetPosition(-800);
+//            robot.extenderHexMotor.setPower(1.0);
+//        }
+//        if(gamepad2.a) {
+//            //Reset to starting position (retract and lower)
+//            robot.armDriveMotor.setTargetPosition(100);
+//            robot.armDriveMotor.setPower(0.6);
+//            robot.extenderHexMotor.setTargetPosition(-10);
+//            robot.extenderHexMotor.setPower(1.0);
+//        }
 
         // range between 0 and -1500
 
-        //robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
+        if (gamepad2.left_stick_y > 0) {
+          //lowering arm so lower power
+            armDrivePower = 0.1;
+        } else {
+            armDrivePower = -gamepad2.right_stick_y * 0.4;
+        }
+
+
+        robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
 
         /* Arm Drive Motor **/
         //limit down to 300
         //limit up to 2400
-        //robot.armDriveMotor.setPower(normalize(-gamepad2.right_stick_y) * 0.4);
+        robot.armDriveMotor.setPower(armDrivePower);
 
         /* Arm collector **/
-        //robot.collectorHexMotor.setPower(normalize(-gamepad2.right));
+        //robot.collectorHexMotor.setPower(normalize(-gamepad2.right_trigger));
 
         /* Telemetry Data **/
         // Show the elapsed game time and wheel power.
