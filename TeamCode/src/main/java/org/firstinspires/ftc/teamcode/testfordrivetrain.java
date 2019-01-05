@@ -86,11 +86,11 @@ public class testfordrivetrain extends OpMode
         telemetry.addData(">>", "Press start to continue");
         telemetry.update();
         robot.armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extenderHexMotor.setTargetPosition(0);
         robot.armDriveMotor.setTargetPosition(0);
         robot.armDriveMotor.setPower(0.0);
@@ -119,6 +119,11 @@ public class testfordrivetrain extends OpMode
     public void loop() {
 
         /* Drive train **/
+        if (gamepad1.right_trigger > 0) {
+            maxSpeed = 0.2;
+        } else {
+            maxSpeed = 0.5;
+        }
         robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
         robot.rightFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
         robot.leftBackDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
@@ -176,23 +181,42 @@ public class testfordrivetrain extends OpMode
 
         // range between 0 and -1500
 
-        if (gamepad2.left_stick_y > 0) {
+        if (gamepad2.right_stick_y > 0) {
           //lowering arm so lower power
-            armDrivePower = 0.1;
+            robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            armDrivePower = -0.1;
+        } else if (gamepad2.right_stick_y < 0){
+            if (robot.armDriveMotor.getCurrentPosition() < 1900) {
+                robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                armDrivePower = -gamepad2.right_stick_y * 0.3;
+            } else {
+                robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.armDriveMotor.setTargetPosition(robot.armDriveMotor.getCurrentPosition());
+                armDrivePower = 1.0;
+            }
         } else {
-            armDrivePower = -gamepad2.right_stick_y * 0.4;
+            robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.armDriveMotor.setTargetPosition(robot.armDriveMotor.getCurrentPosition());
+            armDrivePower = 1.0;
         }
 
+        robot.armDriveMotor.setPower(armDrivePower);
 
         robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
 
         /* Arm Drive Motor **/
         //limit down to 300
         //limit up to 2400
-        robot.armDriveMotor.setPower(armDrivePower);
 
         /* Arm collector **/
-        //robot.collectorHexMotor.setPower(normalize(-gamepad2.right_trigger));
+       if (gamepad2.right_trigger > 0){
+           robot.collectorHexMotor.setPower(1.0);
+       }
+        else if (gamepad2.left_trigger > 0){
+            robot.collectorHexMotor.setPower(-1.0);
+        } else {
+           robot.collectorHexMotor.setPower(0.0);
+       }
 
         /* Telemetry Data **/
         // Show the elapsed game time and wheel power.
