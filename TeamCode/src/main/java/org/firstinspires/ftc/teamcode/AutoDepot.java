@@ -263,7 +263,7 @@ public class AutoDepot extends LinearOpMode {
                 telemetry.update();
                 robot.collectorHexMotor.setPower(-1.0);
                 robot.armDriveMotor.setTargetPosition(10);
-                sleep(2000);
+                sleep(500);
 
                 robot.collectorHexMotor.setPower(0.0);
 //
