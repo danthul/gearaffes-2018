@@ -32,7 +32,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -56,7 +55,13 @@ public class testfordrivetrain extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private HardwareRobot robot   = new HardwareRobot();
+    private HardwareRobot robot = new HardwareRobot();
+    double elevatorPower;
+    double elevatorHighPower = 1.0;
+    double elevatorLowPower = 0.4;
+    double maxSpeed = 0.5;
+    boolean isExtenderBusy = false;
+    boolean isArmBusy = false;
 
     double normalize(double number) {
         if (number > 1) {
@@ -77,10 +82,18 @@ public class testfordrivetrain extends OpMode
     public void init() {
         robot.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
-
         telemetry.addData(">>", "Press start to continue");
         telemetry.update();
+        robot.armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.extenderHexMotor.setTargetPosition(0);
+        robot.armDriveMotor.setTargetPosition(0);
+        robot.armDriveMotor.setPower(0.0);
+        robot.extenderHexMotor.setPower(0.0);
     }
 
     /*
@@ -103,10 +116,6 @@ public class testfordrivetrain extends OpMode
      */
     @Override
     public void loop() {
-        double elevatorPower;
-        double elevatorHighPower = 1.0;
-        double elevatorLowPower = 0.4;
-        double maxSpeed = 0.5;
 
         /* Drive train **/
         robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
@@ -133,63 +142,56 @@ public class testfordrivetrain extends OpMode
         }
         robot.elevatorMotor.setPower(elevatorPower);
 
-        /* Arm extender **/
+
+//        /* Arm drive and extender **/
+        if(gamepad2.x) {
+            //Collecting position (extend and down)
+            robot.armDriveMotor.setTargetPosition(300);
+            robot.armDriveMotor.setPower(0.4);
+            robot.extenderHexMotor.setTargetPosition(-800);
+            robot.extenderHexMotor.setPower(1.0);
+        }
+        if(gamepad2.y) {
+            //Travelling position (retract and raise)
+            robot.armDriveMotor.setTargetPosition(1000);
+            robot.armDriveMotor.setPower(0.6);
+            robot.extenderHexMotor.setTargetPosition(-100);
+            robot.extenderHexMotor.setPower(1.0);
+        }
+        if(gamepad2.b) {
+            //Scoring position (extend and raise)
+            robot.armDriveMotor.setTargetPosition(1800);
+            robot.armDriveMotor.setPower(0.6);
+            robot.extenderHexMotor.setTargetPosition(-800);
+            robot.extenderHexMotor.setPower(1.0);
+        }
+        if(gamepad2.a) {
+            //Reset to starting position (retract and lower)
+            robot.armDriveMotor.setTargetPosition(100);
+            robot.armDriveMotor.setPower(0.6);
+            robot.extenderHexMotor.setTargetPosition(-10);
+            robot.extenderHexMotor.setPower(1.0);
+        }
+
         // range between 0 and -1500
-//        double left_stick_position;
-//        if (robot.extenderHexMotor.getCurrentPosition() >= 0 && gamepad2.left_stick_y > 0) {
-//            left_stick_position = 0;
-//        } else if (robot.extenderHexMotor.getCurrentPosition() <= -1500 && gamepad2.left_stick_y < 0) {
-//            left_stick_position = 0;
-//        } else {
-//            left_stick_position = gamepad2.left_stick_y;
-//        }
-        robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y) * 1.0);
+
+        //robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
 
         /* Arm Drive Motor **/
-        //limit down to -300
-
-        //limit up to -2400
-        robot.armDriveMotor.setPower(normalize(-gamepad2.right_stick_y) * 0.7);
+        //limit down to 300
+        //limit up to 2400
+        //robot.armDriveMotor.setPower(normalize(-gamepad2.right_stick_y) * 0.4);
 
         /* Arm collector **/
-        if(gamepad2.x) {
-            //if top sensor isn't hit and y is pressed, move elevator up at low power
-            robot.collectorHexMotor.setPower(1.0);
-        } else if(gamepad2.b) {
-            //if top sensor isn't hit and y is pressed, move elevator up at low power
-            robot.collectorHexMotor.setPower(-1.0);
-        } else {
-            robot.collectorHexMotor.setPower(0);
-        }
+        //robot.collectorHexMotor.setPower(normalize(-gamepad2.right));
 
         /* Telemetry Data **/
         // Show the elapsed game time and wheel power.
-        telemetry.addData("armDriveMotor Position", robot.armDriveMotor.getCurrentPosition());
-        telemetry.addData("extenderHexMotor Position", robot.extenderHexMotor.getCurrentPosition());
-//        telemetry.addData("Status", "Run Time: " + runtime.toString());
-//        telemetry.addData("Hex Position",  "Hex Position: " + bottomHexMotor.getCurrentPosition());
-
-        //   telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
-
-//        telemetry.addData("leftBackDrive Position", "Position: " + robot.leftBackDrive.getCurrentPosition());
-//        telemetry.addData("rightBackDrive Position", "Position: " + robot.rightBackDrive.getCurrentPosition());
-//        telemetry.addData("leftFrontDrive Position", "Position: " + robot.leftFrontDrive.getCurrentPosition());
-//        telemetry.addData("rightFrontDrive Position", "Position: " + robot.rightFrontDrive.getCurrentPosition());
-
-//        telemetry.addData("range_left", String.format("%.01f mm", sensorRangeLeft.getDistance(DistanceUnit.MM)));
-//        telemetry.addData("range_right", String.format("%.01f mm", sensorRangeRight.getDistance(DistanceUnit.MM)));
-
-//        int position = bottomHexMotor.getCurrentPosition();
-//        if (robot.elevatorLimitTop.getState() == true) {
-//            telemetry.addData("elevatortop", "is Not Pressed");
-//        } else {
-//            telemetry.addData("elevatortop", "is Pressed");
-//        }
-//        if (robot.elevatorLimitBottom.getState() == true) {
-//            telemetry.addData("elevatorbottom", "is Not Pressed");
-//        } else {
-//            telemetry.addData("elevatorbottom", "is Pressed");
-//        }
+        telemetry.addData("armDriveMotor Current Position", robot.armDriveMotor.getCurrentPosition());
+        telemetry.addData("armDriveMotor Target Position", robot.armDriveMotor.getTargetPosition());
+        telemetry.addData("extenderHexMotor Current Position", robot.extenderHexMotor.getCurrentPosition());
+        telemetry.addData("extenderHexMotor Target Position", robot.extenderHexMotor.getTargetPosition());
+        telemetry.addData("extender is busy", isExtenderBusy);
         telemetry.update();
     }
 
@@ -199,18 +201,5 @@ public class testfordrivetrain extends OpMode
     @Override
     public void stop() {
     }
-
-    /*
-     * set bottom hex after button press
-     */
-//    protected void bottomHexPosition(int position){
-//        bottomHexMotor.setTargetPosition(position);
-//        if (bottomHexMotor.getCurrentPosition() > bottomHexMotor.getTargetPosition()) {
-//            hexPower = -maxHexPower;
-//        } else {
-//            hexPower = maxHexPower;
-//        }
-//        bottomHexMotor.setPower(hexPower);
-//    }
 
 }
