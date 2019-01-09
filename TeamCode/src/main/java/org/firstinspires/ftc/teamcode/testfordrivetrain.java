@@ -202,7 +202,20 @@ public class testfordrivetrain extends OpMode
 
         robot.armDriveMotor.setPower(armDrivePower);
 
-        robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
+
+        if (gamepad2.left_stick_y != 0) {
+            robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
+
+        } else if (gamepad2.y ){
+            robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.extenderHexMotor.setPower(1.0);
+            robot.extenderHexMotor.setTargetPosition(-1000);
+        } else if (gamepad2.a) {
+            robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.extenderHexMotor.setPower(1.0);
+            robot.extenderHexMotor.setTargetPosition(-10);
+        }
 
         /* Arm Drive Motor **/
         //limit down to 300
