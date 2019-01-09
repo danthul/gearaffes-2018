@@ -294,7 +294,7 @@ public class AutoCrater extends LinearOpMode {
                 encoderDrive(driveSpeed, "clockwise",44, 5);
                 encoderDrive(driveSpeed, "forward",10, 2);
 
-
+                //drove over to
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.armDriveMotor.setTargetPosition(200);
                 robot.armDriveMotor.setPower(0.9);

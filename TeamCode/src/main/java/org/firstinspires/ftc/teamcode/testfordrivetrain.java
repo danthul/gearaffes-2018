@@ -61,6 +61,7 @@ public class testfordrivetrain extends OpMode
     double elevatorLowPower = 0.4;
     double maxSpeed = 0.5;
     double armDrivePower = 0;
+    int armStopPosition;
     boolean isExtenderBusy = false;
     boolean isArmBusy = false;
 
@@ -87,13 +88,17 @@ public class testfordrivetrain extends OpMode
         telemetry.update();
         robot.armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        armStopPosition = robot.armDriveMotor.getCurrentPosition();
+        robot.armDriveMotor.setTargetPosition(armStopPosition);
+        robot.armDriveMotor.setPower(0.0);
+
         robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extenderHexMotor.setTargetPosition(0);
-        robot.armDriveMotor.setTargetPosition(0);
-        robot.armDriveMotor.setPower(0.0);
+
         robot.extenderHexMotor.setPower(0.0);
     }
 
@@ -182,31 +187,34 @@ public class testfordrivetrain extends OpMode
         // range between 0 and -1500
 
         if (gamepad2.right_stick_y > 0) {
+            armStopPosition = robot.armDriveMotor.getCurrentPosition();
           //lowering arm so lower power
             robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             armDrivePower = -0.1;
         } else if (gamepad2.right_stick_y < 0){
             if (robot.armDriveMotor.getCurrentPosition() < 1900) {
+                armStopPosition = robot.armDriveMotor.getCurrentPosition();
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 armDrivePower = -gamepad2.right_stick_y * 0.3;
             } else {
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armDriveMotor.setTargetPosition(robot.armDriveMotor.getCurrentPosition());
+                robot.armDriveMotor.setTargetPosition(armStopPosition);
                 armDrivePower = 1.0;
             }
         } else {
             robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.armDriveMotor.setTargetPosition(robot.armDriveMotor.getCurrentPosition());
+            robot.armDriveMotor.setTargetPosition(armStopPosition);
             armDrivePower = 1.0;
         }
 
         robot.armDriveMotor.setPower(armDrivePower);
 
+        //if the stick is moved after y is pressed control will be given back to the driver
 
         if (gamepad2.left_stick_y != 0) {
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
-
+            //if y is pressed arm will extend to 1000
         } else if (gamepad2.y ){
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
