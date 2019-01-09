@@ -120,7 +120,7 @@ public class AutoCrater extends LinearOpMode {
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
-                sleep(1000);
+                sleep(200);
 
                 // drive left to get off hook
                 telemetry.addData("left",0);
@@ -328,13 +328,22 @@ public class AutoCrater extends LinearOpMode {
 
                 robot.collectorHexMotor.setPower(0.0);
 //
+                robot.armDriveMotor.setTargetPosition(1800);
+                sleep(3000);
+
+                encoderDrive(driveSpeed, "counterclockwise",54, 5);
+
+
 //
 //                //retract arm
-                robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-200);
+//                robot.extenderHexMotor.setPower(1.0);
+//                robot.extenderHexMotor.setTargetPosition(-200);
                 sleep(2000);
 
-                encoderDrive(driveSpeed, "backward",48, 5);
+                encoderDrive(driveSpeed, "forward",10, 5);
+
+                robot.armDriveMotor.setPower(0.1);
+                robot.armDriveMotor.setTargetPosition(10);
 
 
 //                robot.armDriveMotor.setPower(0.4);
