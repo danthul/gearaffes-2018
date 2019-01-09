@@ -32,14 +32,13 @@ package org.firstinspires.ftc.teamcode;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-
+// Hello
 /**
  * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
  * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
@@ -54,7 +53,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  */
 
 @Autonomous(name="AutonomousCrater", group="Linear Opmode")
-@Disabled
+//@Disabled
 public class AutoCrater extends LinearOpMode {
 
     HardwareRobot robot   = new HardwareRobot();
@@ -71,9 +70,24 @@ public class AutoCrater extends LinearOpMode {
     private double rightMineralSensorDistance;
     private double leftArmPosition = 0.0;
     private double rightArmPosition = 1.0;
-    private double armSpeedIncrement = 0.03;
+    private double armSpeedIncrement = 0.04;
     private double blueLimit = 29;
     private double driveSpeed = 0.3;
+
+    //colors
+    // hsvValues is an array that will hold the hue, saturation, and value information.
+    float leftHSVValues[] = {0F, 0F, 0F};
+    float centerHSVValues[] = {0F, 0F, 0F};
+    float rightHSVValues[] = {0F, 0F, 0F};
+
+    // values is a reference to the hsvValues array.
+    final float leftValues[] = leftHSVValues;
+    final float centerValues[] = centerHSVValues;
+    final float rightValues[] = rightHSVValues;
+
+    // sometimes it helps to multiply the raw RGB values with a scale factor
+    // to amplify/attentuate the measured values.
+    final double SCALE_FACTOR = 255;
 
 
     @Override
@@ -83,6 +97,7 @@ public class AutoCrater extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         telemetry.update();
+        robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -101,14 +116,11 @@ public class AutoCrater extends LinearOpMode {
             if (robot.elevatorLimitTop.getState()) {
                 telemetry.addData("Elevator", "Lowering from hook");
             } else {
-                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
-                telemetry.addData("centerColor", robot.centerSensorColor.blue());
-                telemetry.addData("Elevator", "Reached the ground");
-                telemetry.update();
+
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
-                sleep(500);
+                sleep(1000);
 
                 // drive left to get off hook
                 telemetry.addData("left",0);
@@ -118,6 +130,10 @@ public class AutoCrater extends LinearOpMode {
                 telemetry.addData("forward",0);
                 encoderDrive(driveSpeed, "forward", 3, 5);
 
+                // spin to correct
+                telemetry.addData("counterClockwise",0);
+                encoderDrive(driveSpeed, "counterClockwise",1, 5);
+
 
                 //drive back to center
                 telemetry.addData("right",0);
@@ -125,121 +141,219 @@ public class AutoCrater extends LinearOpMode {
 
                 //move forward to block
                 telemetry.addData("forward",0);
-                encoderDrive(driveSpeed, "forward", 15.0, 3);
+                encoderDrive(driveSpeed, "forward", 15.5, 3);
 
-                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
-                telemetry.addData("centerColor", robot.centerSensorColor.blue());
-                telemetry.update();
-                sleep(1000);
+                leftArmPosition = 0.5;
+                rightArmPosition = 0.5;
 
-                //sample center block
-                if (robot.centerSensorColor.blue() < blueLimit) {
-                    //center mineral is gold!
-                    // drive forward to knock off middle mineral
-                    telemetry.addData("center mineral was gold!", "");
-                    telemetry.update();
-                    encoderDrive(driveSpeed, "forward", 5, 5);
-                    encoderDrive(driveSpeed, "backward", 5, 5);
-                } else {
-                    //center mineral wasn't gold
-                    telemetry.addData("center mineral was white", "");
-                    telemetry.update();
-                    //if not gold extend sensor arms
-                    //loop until we find minerals or arms hit their maximums
-                    while (opModeIsActive()
-                            && (!leftArmFoundMineral || !rightArmFoundMineral || (leftMineralSensorDistance < maxArmSensorPosition && rightMineralSensorDistance < maxArmSensorPosition))) {
-                        /* left arm sensor - starts at 0 fully extended is 1 */
-                        leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
-                        if (!Double.isNaN(leftMineralSensorDistance)) {
-                            leftArmFoundMineral = true;
-                        } else {
-                            leftArmPosition = leftArmPosition + armSpeedIncrement;
-                        }
-
-                        /* right arm sensor - starts at 1 fully extended is 0 */
-                        rightMineralSensorDistance = robot.rightSensorArmDistance.getDistance(DistanceUnit.CM);
-                        if (!Double.isNaN(rightMineralSensorDistance)) {
-                            rightArmFoundMineral = true;
-                        } else {
-                            rightArmPosition = rightArmPosition - armSpeedIncrement;
-                        }
-
-                        robot.leftSensorArm.setPosition(leftArmPosition);
-                        robot.rightSensorArm.setPosition(rightArmPosition);
-                        //add in a pause so the arms move slowly out
-                        telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
-                        telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
-                        telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
-                        telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
-                        telemetry.update();
-                        sleep(300);
-                        idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
-                    }
-                    //we now have minerals in left and white - if one is gold knock it off if both are gold ignore
-                    //TODO - maybe look to see whichever has the lowest blue content?
-                    //TODO - put a timeout here
-                    if (leftArmFoundMineral && robot.leftSensorArmColor.blue() < 29) {
-                        robot.leftSensorArm.setPosition(1.0);
-                        sleep(500);
-                        robot.leftSensorArm.setPosition(0.0);
-                        robot.rightSensorArm.setPosition(1.0);
-                    } else if (rightArmFoundMineral && robot.rightSensorArmColor.blue() < 29) {
-                        robot.rightSensorArm.setPosition(0.0);
-                        sleep(500);
-                        robot.rightSensorArm.setPosition(1.0);
-                        robot.leftSensorArm.setPosition(0.0);
+                while (opModeIsActive()
+                        && (!leftArmFoundMineral || !rightArmFoundMineral || (leftMineralSensorDistance < maxArmSensorPosition && rightMineralSensorDistance < maxArmSensorPosition))) {
+                    /* left arm sensor - starts at 0 fully extended is 1 */
+                    leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
+                    if (!Double.isNaN(leftMineralSensorDistance)) {
+                        leftArmFoundMineral = true;
                     } else {
-                        //couldn't find gold - retract both and drive forward to hit center
-                        robot.rightSensorArm.setPosition(1.0);
-                        robot.leftSensorArm.setPosition(0.0);
-                        encoderDrive(driveSpeed,"forward",3,2);
-                        encoderDrive(driveSpeed,"backward",3,2);
-                    }
-                    sleep(300);
-                }
-                //move backwards so we don't hit minerals
-                encoderDrive(driveSpeed, "backward", 2, 2);
 
+                        leftArmPosition = leftArmPosition + armSpeedIncrement;
+                    }
+
+                    /* right arm sensor - starts at 1 fully extended is 0 */
+                    rightMineralSensorDistance = robot.rightSensorArmDistance.getDistance(DistanceUnit.CM);
+                    if (!Double.isNaN(rightMineralSensorDistance)) {
+                        rightArmFoundMineral = true;
+                    } else {
+                        rightArmPosition = rightArmPosition - armSpeedIncrement;
+                    }
+
+                    robot.leftSensorArm.setPosition(leftArmPosition);
+                    robot.rightSensorArm.setPosition(rightArmPosition);
+                    //add in a pause so the arms move slowly out
+                    telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                    telemetry.addData("centerColor", robot.centerSensorColor.blue());
+                    telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
+                    telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
+                    telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
+                    telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
+                    telemetry.update();
+//                        telemetry.update();
+                    sleep(300);
+                    idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
+                }
+                if (leftMineralSensorDistance > 40) {
+                    leftArmPosition = leftArmPosition + armSpeedIncrement;
+                    robot.leftSensorArm.setPosition(leftArmPosition);
+                }
+                if (rightMineralSensorDistance > 40) {
+                    rightArmPosition = rightArmPosition - armSpeedIncrement;
+                    robot.rightSensorArm.setPosition(rightArmPosition);
+                }
+//                    sleep(1000);
+                //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
+
+                //In the HSV model, S=Saturation = (Max(R,G,B) - Min(R,G,B)) / Max(R,G,B). As noted, for white, R, G, and B are about the same and S=0,
+                //while for gold, B will be much less than the R and G values so S will be close to 1.
+                //Using this simple calculation can be a good quick way to detect white vs. gold, assuming you are close enough to the mineral to get reasonable readings.
+                //Using S also auto-normalizes for brightness
+
+                //search for largest saturation = gold
+
+                Color.RGBToHSV((int) (robot.leftSensorArmColor.red() * SCALE_FACTOR),
+                        (int) (robot.leftSensorArmColor.green() * SCALE_FACTOR),
+                        (int) (robot.leftSensorArmColor.blue() * SCALE_FACTOR),
+                        leftHSVValues);
+                Color.RGBToHSV((int) (robot.centerSensorColor.red() * SCALE_FACTOR),
+                        (int) (robot.centerSensorColor.green() * SCALE_FACTOR),
+                        (int) (robot.centerSensorColor.blue() * SCALE_FACTOR),
+                        centerHSVValues);
+                Color.RGBToHSV((int) (robot.rightSensorArmColor.red() * SCALE_FACTOR),
+                        (int) (robot.rightSensorArmColor.green() * SCALE_FACTOR),
+                        (int) (robot.rightSensorArmColor.blue() * SCALE_FACTOR),
+                        rightHSVValues);
+
+                //add in a pause so the arms move slowly out
+                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+//                telemetry.addData("centerBlue", robot.centerSensorColor.blue());
+                telemetry.addData("centerSaturation", centerHSVValues[1]);
+                telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
+//                telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
+                telemetry.addData("leftSaturation", leftHSVValues[1]);
+                telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
+//                telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
+                telemetry.addData("rightSaturation", rightHSVValues[1]);
+                telemetry.update();
+                sleep(300);
+
+
+                if (leftHSVValues[1] > centerHSVValues[1] && leftHSVValues[1] > rightHSVValues[1]) {
+                    robot.leftSensorArm.setPosition(1.0);
+                    sleep(500);
+                    robot.rightSensorArm.setPosition(0.8);
+                    robot.leftSensorArm.setPosition(0.2);
+                    sleep(300);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
+                } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
+                    robot.rightSensorArm.setPosition(0.0);
+                    sleep(500);
+                    robot.rightSensorArm.setPosition(0.8);
+                    robot.leftSensorArm.setPosition(0.2);
+                    sleep(300);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
+                } else {
+                    //couldn't find gold - retract both and drive forward to hit center
+                    robot.rightSensorArm.setPosition(0.8);
+                    robot.leftSensorArm.setPosition(0.2);
+                    sleep(300);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
+                    sleep(300);
+                    encoderDrive(driveSpeed,"forward",5,3);
+                    encoderDrive(driveSpeed,"backward",5,3);
+                }
+
+
+//                    if (leftArmFoundMineral && robot.leftSensorArmColor.blue() < 29) {
+//                        robot.leftSensorArm.setPosition(1.0);
+//                        sleep(500);
+//                        robot.leftSensorArm.setPosition(0.0);
+//                        robot.rightSensorArm.setPosition(1.0);
+//                    } else if (rightArmFoundMineral && robot.rightSensorArmColor.blue() < 29) {
+//                        robot.rightSensorArm.setPosition(0.0);
+//                        sleep(500);
+//                        robot.rightSensorArm.setPosition(1.0);
+//                        robot.leftSensorArm.setPosition(0.0);
+//                    } else {
+//                        //couldn't find gold - retract both and drive forward to hit center
+//                        robot.rightSensorArm.setPosition(1.0);
+//                        robot.leftSensorArm.setPosition(0.0);
+//                        encoderDrive(driveSpeed,"forward",3,2);
+//                        encoderDrive(driveSpeed,"backward",3,2);
+//                    }
+//                }
+                //move backwards so we don't hit minerals
+                //encoderDrive(driveSpeed, "backward", 2, 2);
                 /*
                  *
                  * CRATER SPECIFIC CODE
                  *
                  */
-                //This is crater so extend arm to drop marker
+                //This is depot so extend arm to drop marker
 
-                //drive towards wall
-                encoderDrive(driveSpeed, "right", 40, 10);
+//                while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
+//                    telemetry.addData("Raising Arm To Low Position", robot.armDriveMotor.getCurrentPosition());
+////                    telemetry.update();
+//                }
 
-                //spin to orient along wall facing depot
-                encoderDrive(driveSpeed, "counter-clockwise", 15, 5);
 
-                //drive forward to depot
-                encoderDrive(driveSpeed, "forward", 40, 10);
+                //or maybe
+                //robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//                sleep(2000);
+//                robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                encoderDrive(driveSpeed, "left",38, 5);
+                encoderDrive(driveSpeed, "clockwise",44, 5);
+                encoderDrive(driveSpeed, "forward",10, 2);
 
-                robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.extenderHexMotor.setPower(0.5);
-                robot.extenderHexMotor.setTargetPosition(-1000);
-                while (opModeIsActive() && robot.extenderHexMotor.isBusy()) {
-                    telemetry.addData("Extending Arm", robot.extenderHexMotor.getCurrentPosition());
-                }
+
+                robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.armDriveMotor.setTargetPosition(200);
+                robot.armDriveMotor.setPower(0.9);
+
+
+                robot.extenderHexMotor.setPower(1.0);
+                robot.extenderHexMotor.setTargetPosition(-1800);
+//                    robot.extenderHexMotor.setPower(0.5);
+
+//                while (opModeIsActive()) {
+////                    robot.armDriveMotor.setPower(0.9);
+////                    robot.armDriveMotor.setTargetPosition(400);
+////                    robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                    telemetry.addData("Extending Arm", robot.extenderHexMotor.getCurrentPosition());
+//                    telemetry.update();
+//                }
+
+                //telemetry.addData("extending",0);
+
+                sleep(4000);
+
+//                robot.armDriveMotor.setTargetPosition(0);
+//                robot.armDriveMotor.setPower(0.9);
+
                 //eject marker
-                robot.collectorHexMotor.setPower(1.0);
+                telemetry.addData("ejecting",0);
+                telemetry.update();
+                robot.collectorHexMotor.setPower(-0.7);
+                robot.armDriveMotor.setTargetPosition(10);
                 sleep(1000);
+
                 robot.collectorHexMotor.setPower(0.0);
-                //retract arm
-                robot.extenderHexMotor.setTargetPosition(0);
-                while (opModeIsActive() && robot.extenderHexMotor.isBusy()) {
-                    telemetry.addData("Retracting Arm", robot.extenderHexMotor.getCurrentPosition());
-                }
-                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//
+//                //retract arm
+                robot.extenderHexMotor.setPower(1.0);
+                robot.extenderHexMotor.setTargetPosition(-200);
+                sleep(2000);
+
+                encoderDrive(driveSpeed, "backward",48, 5);
 
 
-                //drive backwards to crater
-                encoderDrive(driveSpeed, "backwards", 60, 10);
-                sleep(28000);
+//                robot.armDriveMotor.setPower(0.4);
+//                robot.armDriveMotor.setTargetPosition(300);
+//                robot.extenderHexMotor.setPower(1.0);
+//                robot.extenderHexMotor.setTargetPosition(-1500);
+                sleep(20000);
+
+
+//                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//                //drive to left to wall
+//                encoderDrive(driveSpeed, "left", 40, 10);
+//                //spin clockwise 5 inches
+//                encoderDrive(driveSpeed, "clockwise", 5, 5);
+//                //drive backwards to crater
+//                encoderDrive(driveSpeed, "backward", 60, 10);
+//                sleep(28000);
             }
-            telemetry.update();
+//            telemetry.update();
             idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
         }
     }
@@ -389,7 +503,7 @@ public class AutoCrater extends LinearOpMode {
             robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            sleep(250);   // optional pause after each move
+            // sleep(250);   // optional pause after each move
         }
     }
 }
