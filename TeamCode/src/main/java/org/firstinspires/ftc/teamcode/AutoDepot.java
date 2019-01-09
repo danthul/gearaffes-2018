@@ -74,6 +74,21 @@ public class AutoDepot extends LinearOpMode {
     private double blueLimit = 29;
     private double driveSpeed = 0.3;
 
+    //colors
+    // hsvValues is an array that will hold the hue, saturation, and value information.
+    float leftHSVValues[] = {0F, 0F, 0F};
+    float centerHSVValues[] = {0F, 0F, 0F};
+    float rightHSVValues[] = {0F, 0F, 0F};
+
+    // values is a reference to the hsvValues array.
+    final float leftValues[] = leftHSVValues;
+    final float centerValues[] = centerHSVValues;
+    final float rightValues[] = rightHSVValues;
+
+    // sometimes it helps to multiply the raw RGB values with a scale factor
+    // to amplify/attentuate the measured values.
+    final double SCALE_FACTOR = 255;
+
 
     @Override
     public void runOpMode() {
@@ -175,7 +190,41 @@ public class AutoDepot extends LinearOpMode {
 //                    sleep(1000);
                     //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
 
-                    if (robot.leftSensorArmColor.blue() < robot.centerSensorColor.blue() && robot.leftSensorArmColor.blue() < robot.rightSensorArmColor.blue()) {
+                //In the HSV model, S=Saturation = (Max(R,G,B) - Min(R,G,B)) / Max(R,G,B). As noted, for white, R, G, and B are about the same and S=0,
+                //while for gold, B will be much less than the R and G values so S will be close to 1.
+                //Using this simple calculation can be a good quick way to detect white vs. gold, assuming you are close enough to the mineral to get reasonable readings.
+                //Using S also auto-normalizes for brightness
+
+                //search for largest saturation = gold
+
+                Color.RGBToHSV((int) (robot.leftSensorArmColor.red() * SCALE_FACTOR),
+                        (int) (robot.leftSensorArmColor.green() * SCALE_FACTOR),
+                        (int) (robot.leftSensorArmColor.blue() * SCALE_FACTOR),
+                        leftHSVValues);
+                Color.RGBToHSV((int) (robot.centerSensorColor.red() * SCALE_FACTOR),
+                        (int) (robot.centerSensorColor.green() * SCALE_FACTOR),
+                        (int) (robot.centerSensorColor.blue() * SCALE_FACTOR),
+                        centerHSVValues);
+                Color.RGBToHSV((int) (robot.rightSensorArmColor.red() * SCALE_FACTOR),
+                        (int) (robot.rightSensorArmColor.green() * SCALE_FACTOR),
+                        (int) (robot.rightSensorArmColor.blue() * SCALE_FACTOR),
+                        rightHSVValues);
+
+                //add in a pause so the arms move slowly out
+                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+//                telemetry.addData("centerBlue", robot.centerSensorColor.blue());
+                telemetry.addData("centerSaturation", centerHSVValues[1]);
+                telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
+//                telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
+                telemetry.addData("leftSaturation", leftHSVValues[1]);
+                telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
+//                telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
+                telemetry.addData("rightSaturation", rightHSVValues[1]);
+                telemetry.update();
+                sleep(2000);
+
+
+                if (leftHSVValues[1] > centerHSVValues[1] && leftHSVValues[1] > rightHSVValues[1]) {
                         robot.leftSensorArm.setPosition(1.0);
                         sleep(500);
                         robot.rightSensorArm.setPosition(0.8);
@@ -183,7 +232,7 @@ public class AutoDepot extends LinearOpMode {
                         sleep(300);
                         robot.rightSensorArm.setPosition(1.0);
                         robot.leftSensorArm.setPosition(0.0);
-                    } else if (robot.rightSensorArmColor.blue() < robot.centerSensorColor.blue() && robot.rightSensorArmColor.blue() < robot.leftSensorArmColor.blue()) {
+                    } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
                         robot.rightSensorArm.setPosition(0.0);
                         sleep(500);
                         robot.rightSensorArm.setPosition(0.8);
