@@ -291,7 +291,8 @@ public class AutoCrater extends LinearOpMode {
 //                sleep(2000);
 //                robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 encoderDrive(driveSpeed, "left",38, 5);
-                encoderDrive(driveSpeed, "clockwise",44, 5);
+                //encoderDrive(driveSpeed, "clockwise",44, 5);
+                encoderDrive(driveSpeed, "clockwise",43, 5);
                 encoderDrive(driveSpeed, "forward",10, 2);
 
 
@@ -329,17 +330,19 @@ public class AutoCrater extends LinearOpMode {
                 robot.collectorHexMotor.setPower(0.0);
 //
                 robot.armDriveMotor.setPower(0.6);
-                robot.armDriveMotor.setTargetPosition(1800);
-                sleep(3000);
+                robot.armDriveMotor.setTargetPosition(900);
+                sleep(1000);
 
-                encoderDrive(driveSpeed, "counterClockwise",54, 5);
+                //encoderDrive(driveSpeed, "counterClockwise",54, 5);
+                //encoderDrive(driveSpeed, "counterClockwise",30, 5);
+                encoderDrive(driveSpeed, "counterClockwise",35, 5);
 
 
 //
 //                //retract arm
 //                robot.extenderHexMotor.setPower(1.0);
 //                robot.extenderHexMotor.setTargetPosition(-200);
-                sleep(2000);
+                sleep(1000);
 
                 encoderDrive(driveSpeed, "forward",10, 5);
 
