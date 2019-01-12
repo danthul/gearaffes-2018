@@ -325,7 +325,7 @@ public class AutoCrater extends LinearOpMode {
                 telemetry.update();
                 robot.collectorHexMotor.setPower(-0.7);
                 robot.armDriveMotor.setTargetPosition(10);
-                sleep(1000);
+                sleep(1500);
 
                 robot.collectorHexMotor.setPower(0.0);
 //

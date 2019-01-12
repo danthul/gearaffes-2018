@@ -94,12 +94,12 @@ public class testfordrivetrain extends OpMode
         robot.armDriveMotor.setTargetPosition(armStopPosition);
         robot.armDriveMotor.setPower(0.0);
 
-        robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.extenderHexMotor.setTargetPosition(0);
+//        robot.extenderHexMotor.setTargetPosition(0);
 
-        robot.extenderHexMotor.setPower(0.0);
+//        robot.extenderHexMotor.setPower(0.0);
     }
 
     /*
@@ -211,6 +211,9 @@ public class testfordrivetrain extends OpMode
 
         //if the stick is moved after y is pressed control will be given back to the driver
 
+//        robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
+
         if (gamepad2.left_stick_y != 0) {
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
@@ -218,11 +221,11 @@ public class testfordrivetrain extends OpMode
         } else if (gamepad2.y ){
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
-            robot.extenderHexMotor.setTargetPosition(-1000);
-        } else if (gamepad2.a) {
-            robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.extenderHexMotor.setPower(1.0);
-            robot.extenderHexMotor.setTargetPosition(-10);
+            robot.extenderHexMotor.setTargetPosition(-1200);
+        }
+
+        if (!robot.extenderHexMotor.isBusy()) {
+            robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         /* Arm Drive Motor **/
@@ -230,10 +233,10 @@ public class testfordrivetrain extends OpMode
         //limit up to 2400
 
         /* Arm collector **/
-       if (gamepad2.right_trigger > 0){
+       if (gamepad2.left_trigger > 0){
            robot.collectorHexMotor.setPower(1.0);
        }
-        else if (gamepad2.left_trigger > 0){
+        else if (gamepad2.right_trigger > 0){
             robot.collectorHexMotor.setPower(-1.0);
         } else {
            robot.collectorHexMotor.setPower(0.0);
