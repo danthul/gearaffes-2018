@@ -222,11 +222,13 @@ public class testfordrivetrain extends OpMode
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
             robot.extenderHexMotor.setTargetPosition(-1200);
+        } else {
+            if (!robot.extenderHexMotor.isBusy()) {
+                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.extenderHexMotor.setPower(0);
+            }
         }
 
-        if (!robot.extenderHexMotor.isBusy()) {
-            robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
 
         /* Arm Drive Motor **/
         //limit down to 300

@@ -59,6 +59,9 @@ public class AutoDepot extends LinearOpMode {
     HardwareRobot robot   = new HardwareRobot();
 
     // Declare OpMode members.
+
+    //this is the distance it corrects after driving off hook and moving forward
+    private double recenterDistance = 4.5;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
@@ -114,7 +117,7 @@ public class AutoDepot extends LinearOpMode {
             //raise elevator
             robot.elevatorMotor.setPower(-0.4);
             if (robot.elevatorLimitTop.getState()) {
-                telemetry.addData("Elevator", "Lowering from hook");
+//                telemetry.addData("Elevator", "Lowering from hook");
             } else {
 
                 robot.elevatorMotor.setPower(0.0);
@@ -137,12 +140,27 @@ public class AutoDepot extends LinearOpMode {
 
                 //drive back to center
                 telemetry.addData("right",0);
-                encoderDrive(driveSpeed, "right", 2.5, 3);
+                encoderDrive(driveSpeed, "right", recenterDistance, 3);
 
                 //move forward to block
                 telemetry.addData("forward",0);
                 encoderDrive(driveSpeed, "forward", 15.5, 3);
 
+                sleep(1000);
+                telemetry.addData("centerDistanceCheck", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                telemetry.update();
+                sleep(2000);
+                if (Double.isNaN(robot.centerSensorDistance.getDistance(DistanceUnit.CM)) || robot.centerSensorDistance.getDistance(DistanceUnit.CM) > 15) {
+                    telemetry.addData("driving forward", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                    telemetry.update();
+                    encoderDrive(driveSpeed, "forward", 1.0, 3);
+                }
+                if (Double.isNaN(robot.centerSensorDistance.getDistance(DistanceUnit.CM)) || robot.centerSensorDistance.getDistance(DistanceUnit.CM) > 15) {
+                    telemetry.addData("driving forward", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                    telemetry.update();
+                    encoderDrive(driveSpeed, "forward", 1.0, 3);
+                }
+                sleep(3000);
                     leftArmPosition = 0.5;
                     rightArmPosition = 0.5;
 
@@ -179,14 +197,22 @@ public class AutoDepot extends LinearOpMode {
                         sleep(300);
                         idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
                     }
-                    if (leftMineralSensorDistance > 40) {
-                        leftArmPosition = leftArmPosition + armSpeedIncrement;
+                    if (leftMineralSensorDistance > 30) {
+                        leftArmPosition = leftArmPosition + (armSpeedIncrement * 1.25);
+                        robot.leftSensorArm.setPosition(leftArmPosition);
+                    } else if (leftMineralSensorDistance > 15) {
+                        leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
                         robot.leftSensorArm.setPosition(leftArmPosition);
                     }
-                    if (rightMineralSensorDistance > 40) {
-                        rightArmPosition = rightArmPosition - armSpeedIncrement;
+
+                    if (rightMineralSensorDistance > 30) {
+                        rightArmPosition = rightArmPosition - (armSpeedIncrement * 1.25);
+                        robot.rightSensorArm.setPosition(rightArmPosition);
+                    } else if (rightMineralSensorDistance > 15) {
+                        rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
                         robot.rightSensorArm.setPosition(rightArmPosition);
                     }
+
 //                    sleep(1000);
                     //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
 
@@ -271,6 +297,8 @@ public class AutoDepot extends LinearOpMode {
 //                        encoderDrive(driveSpeed,"backward",3,2);
 //                    }
 //                }
+                sleep(20000);
+
                 //move backwards so we don't hit minerals
                 //encoderDrive(driveSpeed, "backward", 2, 2);
                 /*
@@ -331,6 +359,10 @@ public class AutoDepot extends LinearOpMode {
                 robot.armDriveMotor.setTargetPosition(300);
                 robot.extenderHexMotor.setPower(1.0);
                 robot.extenderHexMotor.setTargetPosition(-1500);
+
+                robot.armDriveMotor.setPower(0.1);
+                sleep(3000);
+                robot.armDriveMotor.setTargetPosition(10);
                 sleep(20000);
 
 
@@ -466,18 +498,18 @@ public class AutoDepot extends LinearOpMode {
                     (robot.leftFrontDrive.isBusy() && robot.rightBackDrive.isBusy() && robot.leftBackDrive.isBusy() && robot.rightFrontDrive.isBusy() )) {
 
                 // Display it for the driver.
-                telemetry.addData("Target",  "Running to %7d :%7d :%7d :%7d",
-                        newLeftFrontTarget,
-                        newRightBackTarget,
-                        newLeftBackTarget,
-                        newRightFrontTarget);
-                telemetry.addData("Current",  "Running at %7d :%7d :%7d :%7d",
-                        robot.leftFrontDrive.getCurrentPosition(),
-                        robot.rightBackDrive.getCurrentPosition(),
-                        robot.leftBackDrive.getCurrentPosition(),
-                        robot.rightFrontDrive.getCurrentPosition()
-                );
-                telemetry.update();
+//                telemetry.addData("Target",  "Running to %7d :%7d :%7d :%7d",
+//                        newLeftFrontTarget,
+//                        newRightBackTarget,
+//                        newLeftBackTarget,
+//                        newRightFrontTarget);
+//                telemetry.addData("Current",  "Running at %7d :%7d :%7d :%7d",
+//                        robot.leftFrontDrive.getCurrentPosition(),
+//                        robot.rightBackDrive.getCurrentPosition(),
+//                        robot.leftBackDrive.getCurrentPosition(),
+//                        robot.rightFrontDrive.getCurrentPosition()
+//                );
+//                telemetry.update();
                 idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
             }
 
