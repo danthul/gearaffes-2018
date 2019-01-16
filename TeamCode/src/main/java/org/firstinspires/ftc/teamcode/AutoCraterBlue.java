@@ -38,27 +38,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-// Hello
-/**
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
-
-@Autonomous(name="AutonomousCrater", group="Linear Opmode")
+@Autonomous(name="AutoCraterBlue", group="Linear Opmode")
 //@Disabled
-public class AutoCrater extends LinearOpMode {
+public class AutoCraterBlue extends LinearOpMode {
 
     HardwareRobot robot   = new HardwareRobot();
 
     // Declare OpMode members.
+
+    //this is the distance it corrects after driving off hook and moving forward
+    private double recenterDistance = 4.5;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
@@ -97,6 +86,7 @@ public class AutoCrater extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         telemetry.update();
+        robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Wait for the game to start (driver presses PLAY)
@@ -114,13 +104,13 @@ public class AutoCrater extends LinearOpMode {
             //raise elevator
             robot.elevatorMotor.setPower(-0.4);
             if (robot.elevatorLimitTop.getState()) {
-                telemetry.addData("Elevator", "Lowering from hook");
+//                telemetry.addData("Elevator", "Lowering from hook");
             } else {
 
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
-                sleep(200);
+                sleep(1000);
 
                 // drive left to get off hook
                 telemetry.addData("left",0);
@@ -137,17 +127,29 @@ public class AutoCrater extends LinearOpMode {
 
                 //drive back to center
                 telemetry.addData("right",0);
-                encoderDrive(driveSpeed, "right", 2.5, 3);
+                encoderDrive(driveSpeed, "right", recenterDistance, 3);
 
                 //move forward to block
                 telemetry.addData("forward",0);
                 encoderDrive(driveSpeed, "forward", 15.5, 3);
 
+                if (Double.isNaN(robot.centerSensorDistance.getDistance(DistanceUnit.CM)) || robot.centerSensorDistance.getDistance(DistanceUnit.CM) > 15) {
+                    telemetry.addData("driving forward", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                    telemetry.update();
+                    encoderDrive(driveSpeed, "forward", 1.0, 3);
+                }
+                if (Double.isNaN(robot.centerSensorDistance.getDistance(DistanceUnit.CM)) || robot.centerSensorDistance.getDistance(DistanceUnit.CM) > 15) {
+                    telemetry.addData("driving forward", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                    telemetry.update();
+                    encoderDrive(driveSpeed, "forward", 1.0, 3);
+                }
+
                 leftArmPosition = 0.5;
                 rightArmPosition = 0.5;
 
                 while (opModeIsActive()
-                        && (!leftArmFoundMineral || !rightArmFoundMineral || (leftMineralSensorDistance < maxArmSensorPosition && rightMineralSensorDistance < maxArmSensorPosition))) {
+                        && ((!leftArmFoundMineral || !rightArmFoundMineral)
+                        && leftArmPosition <= 1.0 && rightArmPosition >= 0)) {
                     /* left arm sensor - starts at 0 fully extended is 1 */
                     leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
                     if (!Double.isNaN(leftMineralSensorDistance)) {
@@ -179,14 +181,22 @@ public class AutoCrater extends LinearOpMode {
                     sleep(300);
                     idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
                 }
-                if (leftMineralSensorDistance > 40) {
-                    leftArmPosition = leftArmPosition + armSpeedIncrement;
+                if (leftMineralSensorDistance > 30) {
+                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 1.25);
+                    robot.leftSensorArm.setPosition(leftArmPosition);
+                } else if (leftMineralSensorDistance > 15) {
+                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
                     robot.leftSensorArm.setPosition(leftArmPosition);
                 }
-                if (rightMineralSensorDistance > 40) {
-                    rightArmPosition = rightArmPosition - armSpeedIncrement;
+
+                if (rightMineralSensorDistance > 30) {
+                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 1.25);
+                    robot.rightSensorArm.setPosition(rightArmPosition);
+                } else if (rightMineralSensorDistance > 15) {
+                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
                     robot.rightSensorArm.setPosition(rightArmPosition);
                 }
+
 //                    sleep(1000);
                 //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
 
@@ -270,7 +280,7 @@ public class AutoCrater extends LinearOpMode {
 //                        encoderDrive(driveSpeed,"forward",3,2);
 //                        encoderDrive(driveSpeed,"backward",3,2);
 //                    }
-//                }
+
                 //move backwards so we don't hit minerals
                 //encoderDrive(driveSpeed, "backward", 2, 2);
                 /*

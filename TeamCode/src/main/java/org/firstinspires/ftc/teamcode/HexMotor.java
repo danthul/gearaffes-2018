@@ -59,7 +59,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  */
 
 @TeleOp(name="HexMotor", group="Linear Opmode")
-
+@Disabled
 public class HexMotor extends OpMode
 {
     // Declare OpMode members.

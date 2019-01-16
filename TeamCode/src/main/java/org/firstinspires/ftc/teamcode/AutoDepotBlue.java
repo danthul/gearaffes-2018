@@ -38,23 +38,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-// Hello
-/**
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
-
-@Autonomous(name="AutonomousDepot", group="Linear Opmode")
+@Autonomous(name="AutoDepotBlue", group="Linear Opmode")
 //@Disabled
-public class AutoDepot extends LinearOpMode {
+public class AutoDepotBlue extends LinearOpMode {
 
     HardwareRobot robot   = new HardwareRobot();
 
@@ -100,6 +86,8 @@ public class AutoDepot extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         telemetry.update();
+
+        robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Wait for the game to start (driver presses PLAY)
@@ -146,10 +134,6 @@ public class AutoDepot extends LinearOpMode {
                 telemetry.addData("forward",0);
                 encoderDrive(driveSpeed, "forward", 15.5, 3);
 
-                sleep(1000);
-                telemetry.addData("centerDistanceCheck", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
-                telemetry.update();
-                sleep(2000);
                 if (Double.isNaN(robot.centerSensorDistance.getDistance(DistanceUnit.CM)) || robot.centerSensorDistance.getDistance(DistanceUnit.CM) > 15) {
                     telemetry.addData("driving forward", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
                     telemetry.update();
@@ -160,12 +144,13 @@ public class AutoDepot extends LinearOpMode {
                     telemetry.update();
                     encoderDrive(driveSpeed, "forward", 1.0, 3);
                 }
-                sleep(3000);
+
                     leftArmPosition = 0.5;
                     rightArmPosition = 0.5;
 
-                    while (opModeIsActive()
-                            && (!leftArmFoundMineral || !rightArmFoundMineral || (leftMineralSensorDistance < maxArmSensorPosition && rightMineralSensorDistance < maxArmSensorPosition))) {
+                while (opModeIsActive()
+                        && ((!leftArmFoundMineral || !rightArmFoundMineral)
+                        && leftArmPosition <= 1.0 && rightArmPosition >= 0)) {
                         /* left arm sensor - starts at 0 fully extended is 1 */
                         leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
                         if (!Double.isNaN(leftMineralSensorDistance)) {
@@ -296,8 +281,6 @@ public class AutoDepot extends LinearOpMode {
 //                        encoderDrive(driveSpeed,"forward",3,2);
 //                        encoderDrive(driveSpeed,"backward",3,2);
 //                    }
-//                }
-                sleep(20000);
 
                 //move backwards so we don't hit minerals
                 //encoderDrive(driveSpeed, "backward", 2, 2);
