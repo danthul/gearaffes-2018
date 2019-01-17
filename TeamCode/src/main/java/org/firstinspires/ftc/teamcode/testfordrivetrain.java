@@ -62,6 +62,7 @@ public class testfordrivetrain extends OpMode
     double maxSpeed = 0.5;
     double armDrivePower = 0;
     int armStopPosition;
+    int armExtendStopPosition;
     boolean isExtenderBusy = false;
     boolean isArmBusy = false;
 
@@ -183,16 +184,21 @@ public class testfordrivetrain extends OpMode
             if (robot.extenderHexMotor.getCurrentPosition() < 0 || gamepad2.left_stick_y < 0) {
                 robot.extenderHexMotor.setPower(normalize(gamepad2.left_stick_y));
             }
+            armExtendStopPosition = robot.extenderHexMotor.getCurrentPosition();
             //if y is pressed arm will extend to 1000
         } else if (gamepad2.y ){
+            armExtendStopPosition = -1200;
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
-            robot.extenderHexMotor.setTargetPosition(-1200);
+            robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
         } else {
-            if (!robot.extenderHexMotor.isBusy()) {
-                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.extenderHexMotor.setPower(0);
-            }
+            //if (!robot.extenderHexMotor.isBusy()) {
+            //    robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //    robot.extenderHexMotor.setPower(0);
+            //}
+            robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.extenderHexMotor.setPower(1.0);
+            robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
         }
 
 
