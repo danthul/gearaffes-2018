@@ -168,7 +168,7 @@ public class testfordrivetrain extends OpMode
         } else {
             robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.armDriveMotor.setTargetPosition(armStopPosition);
-            armDrivePower = 1.0;
+            armDrivePower = 0.3;
         }
 
         robot.armDriveMotor.setPower(armDrivePower);
@@ -191,6 +191,11 @@ public class testfordrivetrain extends OpMode
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
             robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
+
+            //set arm stop position to drive location as arm is being extended/retracted on pressing Y
+            if (gamepad2.right_stick_y == 0) {
+                armStopPosition = 1200;
+            }
         } else {
             //if (!robot.extenderHexMotor.isBusy()) {
             //    robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -200,7 +205,6 @@ public class testfordrivetrain extends OpMode
             robot.extenderHexMotor.setPower(1.0);
             robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
         }
-
 
         /* Arm Drive Motor **/
         //limit down to 300
