@@ -110,7 +110,7 @@ public class AutoCraterBlue extends LinearOpMode {
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
-                sleep(1000);
+//                sleep(1000);
 
                 // drive left to get off hook
                 telemetry.addData("left",0);
@@ -178,7 +178,7 @@ public class AutoCraterBlue extends LinearOpMode {
                     telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
                     telemetry.update();
 //                        telemetry.update();
-                    sleep(300);
+                    sleep(50);
                     idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
                 }
                 if (leftMineralSensorDistance > 30) {
@@ -236,7 +236,7 @@ public class AutoCraterBlue extends LinearOpMode {
 
                 if (leftHSVValues[1] > centerHSVValues[1] && leftHSVValues[1] > rightHSVValues[1]) {
                     robot.leftSensorArm.setPosition(1.0);
-                    sleep(500);
+//                    sleep(500);
                     robot.rightSensorArm.setPosition(0.8);
                     robot.leftSensorArm.setPosition(0.2);
                     sleep(300);
@@ -244,7 +244,7 @@ public class AutoCraterBlue extends LinearOpMode {
                     robot.leftSensorArm.setPosition(0.0);
                 } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
                     robot.rightSensorArm.setPosition(0.0);
-                    sleep(500);
+//                    sleep(500);
                     robot.rightSensorArm.setPosition(0.8);
                     robot.leftSensorArm.setPosition(0.2);
                     sleep(300);
@@ -254,7 +254,7 @@ public class AutoCraterBlue extends LinearOpMode {
                     //couldn't find gold - retract both and drive forward to hit center
                     robot.rightSensorArm.setPosition(0.8);
                     robot.leftSensorArm.setPosition(0.2);
-                    sleep(300);
+//                    sleep(300);
                     robot.rightSensorArm.setPosition(1.0);
                     robot.leftSensorArm.setPosition(0.0);
                     sleep(300);
@@ -307,7 +307,7 @@ public class AutoCraterBlue extends LinearOpMode {
 
                 //drove over to depot and extending arm to drop marker
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armDriveMotor.setTargetPosition(200);
+                robot.armDriveMotor.setTargetPosition(100);
                 robot.armDriveMotor.setPower(0.9);
 
 
@@ -325,7 +325,7 @@ public class AutoCraterBlue extends LinearOpMode {
 
                 //telemetry.addData("extending",0);
 
-                sleep(4000);
+                sleep(3000);
 
 //                robot.armDriveMotor.setTargetPosition(0);
 //                robot.armDriveMotor.setPower(0.9);

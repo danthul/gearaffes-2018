@@ -168,7 +168,7 @@ public class testfordrivetrain extends OpMode
         } else {
             robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.armDriveMotor.setTargetPosition(armStopPosition);
-            armDrivePower = 0.3;
+            armDrivePower = 0.15;
         }
 
         robot.armDriveMotor.setPower(armDrivePower);
