@@ -41,26 +41,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Autonomous(name="AutoCalibration", group="Linear Opmode")
 //@Disabled
 public class AutoCalibration extends LinearOpMode {
-
     HardwareRobot robot   = new HardwareRobot();
 
-    // Declare OpMode members.
-
     //this is the distance it corrects after driving off hook and moving forward
-    private double recenterDistance = 4.5;
+    private double recenterDistance = 4.0;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
-
-    //stop the arm if it gets to this point and hasn't found a mineral so it doesn't accidentally knock it
-    private final double maxArmSensorPosition = 0.6;
 
     private double leftMineralSensorDistance;
     private double rightMineralSensorDistance;
     private double leftArmPosition = 0.0;
     private double rightArmPosition = 1.0;
     private double armSpeedIncrement = 0.02;
-    private double blueLimit = 29;
     private double driveSpeed = 0.3;
 
     //colors
@@ -69,19 +62,13 @@ public class AutoCalibration extends LinearOpMode {
     float centerHSVValues[] = {0F, 0F, 0F};
     float rightHSVValues[] = {0F, 0F, 0F};
 
-    // values is a reference to the hsvValues array.
-    final float leftValues[] = leftHSVValues;
-    final float centerValues[] = centerHSVValues;
-    final float rightValues[] = rightHSVValues;
-
     // sometimes it helps to multiply the raw RGB values with a scale factor
-    // to amplify/attentuate the measured values.
+    // to amplify/attenuate the measured values.
     final double SCALE_FACTOR = 255;
 
 
     @Override
     public void runOpMode() {
-
         robot.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
 
@@ -96,12 +83,6 @@ public class AutoCalibration extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            //rightArmPosition = rightArmPosition - 0.005;
-//            robot.leftSensorArm.setPosition(leftArmPosition);
-//            robot.rightSensorArm.setPosition(rightArmPosition);
-
-            sleep(50);
-
             //raise elevator
             robot.elevatorMotor.setPower(-0.4);
             if (robot.elevatorLimitTop.getState()) {
@@ -178,28 +159,9 @@ public class AutoCalibration extends LinearOpMode {
                     telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
                     telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
                     telemetry.update();
-//                        telemetry.update();
                     sleep(300);
                     idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
                 }
-//                if (leftMineralSensorDistance > 30) {
-//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
-//                    robot.leftSensorArm.setPosition(leftArmPosition);
-//                } else if (leftMineralSensorDistance > 15) {
-//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.4);
-//                    robot.leftSensorArm.setPosition(leftArmPosition);
-//                }
-//
-//                if (rightMineralSensorDistance > 30) {
-//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
-//                    robot.rightSensorArm.setPosition(rightArmPosition);
-//                } else if (rightMineralSensorDistance > 15) {
-//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.4);
-//                    robot.rightSensorArm.setPosition(rightArmPosition);
-//                }
-
-//                    sleep(1000);
-                //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
 
                 //In the HSV model, S=Saturation = (Max(R,G,B) - Min(R,G,B)) / Max(R,G,B). As noted, for white, R, G, and B are about the same and S=0,
                 //while for gold, B will be much less than the R and G values so S will be close to 1.
@@ -221,38 +183,27 @@ public class AutoCalibration extends LinearOpMode {
                         (int) (robot.rightSensorArmColor.blue() * SCALE_FACTOR),
                         rightHSVValues);
 
-                //add in a pause so the arms move slowly out
-                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
-//                telemetry.addData("centerBlue", robot.centerSensorColor.blue());
-                telemetry.addData("centerSaturation", centerHSVValues[1]);
-                telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
-//                telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
-                telemetry.addData("leftSaturation", leftHSVValues[1]);
-                telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
-//                telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
-                telemetry.addData("rightSaturation", rightHSVValues[1]);
-                telemetry.update();
-                sleep(300);
-
+                String position = "";
 
                 if (leftHSVValues[1] > centerHSVValues[1] && leftHSVValues[1] > rightHSVValues[1]) {
-                    robot.leftSensorArm.setPosition(0.7);
-                    sleep(500);
-                    robot.rightSensorArm.setPosition(1.0);
-                    robot.leftSensorArm.setPosition(0.0);
+                    //left found gold
+                    position = "left";
                 } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
-                    robot.rightSensorArm.setPosition(0.2);
-                    sleep(500);
-                    robot.rightSensorArm.setPosition(1.0);
-                    robot.leftSensorArm.setPosition(0.0);
+                    //right found gold
+                    position = "right";
                 } else {
                     //couldn't find gold - retract both and drive forward to hit center
-                    robot.rightSensorArm.setPosition(0.5);
-                    robot.leftSensorArm.setPosition(0.5);
-//                    sleep(500);
-                    encoderDrive(driveSpeed,"forward",5,3);
-                    encoderDrive(driveSpeed,"backward",5,3);
+                    position = "center";
                 }
+
+                telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                telemetry.addData("centerSaturation", centerHSVValues[1]);
+                telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
+                telemetry.addData("leftSaturation", leftHSVValues[1]);
+                telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
+                telemetry.addData("rightSaturation", rightHSVValues[1]);
+                telemetry.addData("We think gold is in: ", position);
+                telemetry.update();
 
                 sleep(28000);
                 idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
