@@ -179,6 +179,10 @@ public class testfordrivetrain extends OpMode
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
             robot.extenderHexMotor.setTargetPosition(0);
+        } else if (robot.extenderHexMotor.getCurrentPosition() < -1900) {
+                robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.extenderHexMotor.setPower(1.0);
+                robot.extenderHexMotor.setTargetPosition(-1900);
         } else if (gamepad2.left_stick_y != 0) {
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if (robot.extenderHexMotor.getCurrentPosition() < 0 || gamepad2.left_stick_y < 0) {

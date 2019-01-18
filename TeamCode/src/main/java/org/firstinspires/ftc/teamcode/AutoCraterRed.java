@@ -41,13 +41,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Autonomous(name="AutoCraterRed", group="Linear Opmode")
 //@Disabled
 public class AutoCraterRed extends LinearOpMode {
-    
+
     HardwareRobot robot   = new HardwareRobot();
 
     // Declare OpMode members.
 
     //this is the distance it corrects after driving off hook and moving forward
-    private double recenterDistance = 4.0;
+    private double recenterDistance = 3.0;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
@@ -59,7 +59,7 @@ public class AutoCraterRed extends LinearOpMode {
     private double rightMineralSensorDistance;
     private double leftArmPosition = 0.0;
     private double rightArmPosition = 1.0;
-    private double armSpeedIncrement = 0.04;
+    private double armSpeedIncrement = 0.02;
     private double blueLimit = 29;
     private double driveSpeed = 0.3;
 
@@ -81,11 +81,11 @@ public class AutoCraterRed extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
         robot.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
 
         telemetry.update();
+
         robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -96,8 +96,8 @@ public class AutoCraterRed extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //rightArmPosition = rightArmPosition - 0.005;
-            robot.leftSensorArm.setPosition(leftArmPosition);
-            robot.rightSensorArm.setPosition(rightArmPosition);
+//            robot.leftSensorArm.setPosition(leftArmPosition);
+//            robot.rightSensorArm.setPosition(rightArmPosition);
 
             sleep(50);
 
@@ -110,7 +110,7 @@ public class AutoCraterRed extends LinearOpMode {
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
-//                sleep(1000);
+                sleep(500);
 
                 // drive left to get off hook
                 telemetry.addData("left",0);
@@ -144,12 +144,12 @@ public class AutoCraterRed extends LinearOpMode {
                     encoderDrive(driveSpeed, "forward", 1.0, 3);
                 }
 
-                leftArmPosition = 0.5;
-                rightArmPosition = 0.5;
+                leftArmPosition = 0.25;
+                rightArmPosition = 0.75;
 
                 while (opModeIsActive()
                         && ((!leftArmFoundMineral || !rightArmFoundMineral)
-                        && leftArmPosition <= 1.0 && rightArmPosition >= 0)) {
+                        && leftArmPosition <= 0.5 && rightArmPosition >= 0.5)) {
                     /* left arm sensor - starts at 0 fully extended is 1 */
                     leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
                     if (!Double.isNaN(leftMineralSensorDistance)) {
@@ -178,24 +178,24 @@ public class AutoCraterRed extends LinearOpMode {
                     telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
                     telemetry.update();
 //                        telemetry.update();
-                    sleep(50);
+                    sleep(300);
                     idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
                 }
-                if (leftMineralSensorDistance > 30) {
-                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 1.25);
-                    robot.leftSensorArm.setPosition(leftArmPosition);
-                } else if (leftMineralSensorDistance > 15) {
-                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
-                    robot.leftSensorArm.setPosition(leftArmPosition);
-                }
-
-                if (rightMineralSensorDistance > 30) {
-                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 1.25);
-                    robot.rightSensorArm.setPosition(rightArmPosition);
-                } else if (rightMineralSensorDistance > 15) {
-                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
-                    robot.rightSensorArm.setPosition(rightArmPosition);
-                }
+//                if (leftMineralSensorDistance > 30) {
+//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
+//                    robot.leftSensorArm.setPosition(leftArmPosition);
+//                } else if (leftMineralSensorDistance > 15) {
+//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.4);
+//                    robot.leftSensorArm.setPosition(leftArmPosition);
+//                }
+//
+//                if (rightMineralSensorDistance > 30) {
+//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
+//                    robot.rightSensorArm.setPosition(rightArmPosition);
+//                } else if (rightMineralSensorDistance > 15) {
+//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.4);
+//                    robot.rightSensorArm.setPosition(rightArmPosition);
+//                }
 
 //                    sleep(1000);
                 //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
@@ -235,55 +235,29 @@ public class AutoCraterRed extends LinearOpMode {
 
 
                 if (leftHSVValues[1] > centerHSVValues[1] && leftHSVValues[1] > rightHSVValues[1]) {
-                    robot.leftSensorArm.setPosition(1.0);
-//                    sleep(500);
-                    robot.rightSensorArm.setPosition(0.8);
-                    robot.leftSensorArm.setPosition(0.2);
-                    sleep(300);
+                    robot.leftSensorArm.setPosition(0.7);
+                    sleep(500);
                     robot.rightSensorArm.setPosition(1.0);
                     robot.leftSensorArm.setPosition(0.0);
                 } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
-                    robot.rightSensorArm.setPosition(0.0);
-//                    sleep(500);
-                    robot.rightSensorArm.setPosition(0.8);
-                    robot.leftSensorArm.setPosition(0.2);
-                    sleep(300);
+                    robot.rightSensorArm.setPosition(0.2);
+                    sleep(500);
                     robot.rightSensorArm.setPosition(1.0);
                     robot.leftSensorArm.setPosition(0.0);
                 } else {
                     //couldn't find gold - retract both and drive forward to hit center
-                    robot.rightSensorArm.setPosition(0.8);
-                    robot.leftSensorArm.setPosition(0.2);
-//                    sleep(300);
                     robot.rightSensorArm.setPosition(1.0);
                     robot.leftSensorArm.setPosition(0.0);
-                    sleep(300);
+//                    sleep(500);
                     encoderDrive(driveSpeed,"forward",5,3);
                     encoderDrive(driveSpeed,"backward",5,3);
                 }
 
-                //move backwards so we don't hit minerals
-                //encoderDrive(driveSpeed, "backward", 2, 2);
-                /*
-                 *
-                 * CRATER SPECIFIC CODE
-                 *
-                 */
-                //This is depot so extend arm to drop marker
+                //CRATER SPECIFIC
 
-//                while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
-//                    telemetry.addData("Raising Arm To Low Position", robot.armDriveMotor.getCurrentPosition());
-////                    telemetry.update();
-//                }
-
-
-                //or maybe
-                //robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//                sleep(2000);
-//                robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 encoderDrive(driveSpeed, "left",38, 5);
                 //encoderDrive(driveSpeed, "clockwise",44, 5);
-                encoderDrive(driveSpeed, "clockwise",43, 5);
+                encoderDrive(driveSpeed, "clockwise",43.5, 5);
                 encoderDrive(driveSpeed, "forward",10, 2);
 
                 //drove over to depot and extending arm to drop marker
@@ -294,17 +268,6 @@ public class AutoCraterRed extends LinearOpMode {
 
                 robot.extenderHexMotor.setPower(1.0);
                 robot.extenderHexMotor.setTargetPosition(-1800);
-//                    robot.extenderHexMotor.setPower(0.5);
-
-//                while (opModeIsActive()) {
-////                    robot.armDriveMotor.setPower(0.9);
-////                    robot.armDriveMotor.setTargetPosition(400);
-////                    robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                    telemetry.addData("Extending Arm", robot.extenderHexMotor.getCurrentPosition());
-//                    telemetry.update();
-//                }
-
-                //telemetry.addData("extending",0);
 
                 sleep(3000);
 
@@ -329,7 +292,7 @@ public class AutoCraterRed extends LinearOpMode {
                 //encoderDrive(driveSpeed, "counterClockwise",30, 5);
 
                 //turn robot around towards crater
-                encoderDrive(driveSpeed, "counterClockwise",35, 5);
+                encoderDrive(driveSpeed, "counterClockwise",35.5, 5);
 
 
 //

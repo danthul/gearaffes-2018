@@ -59,7 +59,7 @@ public class AutoDepotBlue extends LinearOpMode {
     private double rightMineralSensorDistance;
     private double leftArmPosition = 0.0;
     private double rightArmPosition = 1.0;
-    private double armSpeedIncrement = 0.04;
+    private double armSpeedIncrement = 0.03;
     private double blueLimit = 29;
     private double driveSpeed = 0.3;
 
@@ -97,8 +97,8 @@ public class AutoDepotBlue extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //rightArmPosition = rightArmPosition - 0.005;
-            robot.leftSensorArm.setPosition(leftArmPosition);
-            robot.rightSensorArm.setPosition(rightArmPosition);
+//            robot.leftSensorArm.setPosition(leftArmPosition);
+//            robot.rightSensorArm.setPosition(rightArmPosition);
 
             sleep(50);
 
@@ -111,7 +111,7 @@ public class AutoDepotBlue extends LinearOpMode {
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
-                sleep(1000);
+                sleep(500);
 
                 // drive left to get off hook
                 telemetry.addData("left",0);
@@ -145,61 +145,61 @@ public class AutoDepotBlue extends LinearOpMode {
                     encoderDrive(driveSpeed, "forward", 1.0, 3);
                 }
 
-                    leftArmPosition = 0.5;
-                    rightArmPosition = 0.5;
+                leftArmPosition = 0.25;
+                rightArmPosition = 0.75;
 
                 while (opModeIsActive()
                         && ((!leftArmFoundMineral || !rightArmFoundMineral)
-                        && leftArmPosition <= 1.0 && rightArmPosition >= 0)) {
-                        /* left arm sensor - starts at 0 fully extended is 1 */
-                        leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
-                        if (!Double.isNaN(leftMineralSensorDistance)) {
-                            leftArmFoundMineral = true;
-                        } else {
+                        && leftArmPosition <= 0.5 && rightArmPosition >= 0.5)) {
+                    /* left arm sensor - starts at 0 fully extended is 1 */
+                    leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
+                    if (!Double.isNaN(leftMineralSensorDistance)) {
+                        leftArmFoundMineral = true;
+                    } else {
 
-                            leftArmPosition = leftArmPosition + armSpeedIncrement;
-                        }
+                        leftArmPosition = leftArmPosition + armSpeedIncrement;
+                    }
 
-                        /* right arm sensor - starts at 1 fully extended is 0 */
-                        rightMineralSensorDistance = robot.rightSensorArmDistance.getDistance(DistanceUnit.CM);
-                        if (!Double.isNaN(rightMineralSensorDistance)) {
-                            rightArmFoundMineral = true;
-                        } else {
-                            rightArmPosition = rightArmPosition - armSpeedIncrement;
-                        }
+                    /* right arm sensor - starts at 1 fully extended is 0 */
+                    rightMineralSensorDistance = robot.rightSensorArmDistance.getDistance(DistanceUnit.CM);
+                    if (!Double.isNaN(rightMineralSensorDistance)) {
+                        rightArmFoundMineral = true;
+                    } else {
+                        rightArmPosition = rightArmPosition - armSpeedIncrement;
+                    }
 
-                        robot.leftSensorArm.setPosition(leftArmPosition);
-                        robot.rightSensorArm.setPosition(rightArmPosition);
-                        //add in a pause so the arms move slowly out
-                        telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
-                        telemetry.addData("centerColor", robot.centerSensorColor.blue());
-                        telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
-                        telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
-                        telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
-                        telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
-                        telemetry.update();
+                    robot.leftSensorArm.setPosition(leftArmPosition);
+                    robot.rightSensorArm.setPosition(rightArmPosition);
+                    //add in a pause so the arms move slowly out
+                    telemetry.addData("centerSensorDistance", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
+                    telemetry.addData("centerColor", robot.centerSensorColor.blue());
+                    telemetry.addData("leftSensorDistance", robot.leftSensorArmDistance.getDistance(DistanceUnit.CM));
+                    telemetry.addData("leftColor", robot.leftSensorArmColor.blue());
+                    telemetry.addData("rightSensorDistance", robot.rightSensorArmDistance.getDistance(DistanceUnit.CM));
+                    telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
+                    telemetry.update();
 //                        telemetry.update();
-                        sleep(300);
-                        idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
-                    }
-                    if (leftMineralSensorDistance > 30) {
-                        leftArmPosition = leftArmPosition + (armSpeedIncrement * 1.25);
-                        robot.leftSensorArm.setPosition(leftArmPosition);
-                    } else if (leftMineralSensorDistance > 15) {
-                        leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
-                        robot.leftSensorArm.setPosition(leftArmPosition);
-                    }
-
-                    if (rightMineralSensorDistance > 30) {
-                        rightArmPosition = rightArmPosition - (armSpeedIncrement * 1.25);
-                        robot.rightSensorArm.setPosition(rightArmPosition);
-                    } else if (rightMineralSensorDistance > 15) {
-                        rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
-                        robot.rightSensorArm.setPosition(rightArmPosition);
-                    }
+                    sleep(300);
+                    idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
+                }
+//                if (leftMineralSensorDistance > 30) {
+//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
+//                    robot.leftSensorArm.setPosition(leftArmPosition);
+//                } else if (leftMineralSensorDistance > 15) {
+//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.4);
+//                    robot.leftSensorArm.setPosition(leftArmPosition);
+//                }
+//
+//                if (rightMineralSensorDistance > 30) {
+//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
+//                    robot.rightSensorArm.setPosition(rightArmPosition);
+//                } else if (rightMineralSensorDistance > 15) {
+//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.4);
+//                    robot.rightSensorArm.setPosition(rightArmPosition);
+//                }
 
 //                    sleep(1000);
-                    //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
+                //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
 
                 //In the HSV model, S=Saturation = (Max(R,G,B) - Min(R,G,B)) / Max(R,G,B). As noted, for white, R, G, and B are about the same and S=0,
                 //while for gold, B will be much less than the R and G values so S will be close to 1.
@@ -236,54 +236,25 @@ public class AutoDepotBlue extends LinearOpMode {
 
 
                 if (leftHSVValues[1] > centerHSVValues[1] && leftHSVValues[1] > rightHSVValues[1]) {
-                        robot.leftSensorArm.setPosition(1.0);
-                        sleep(500);
-                        robot.rightSensorArm.setPosition(0.8);
-                        robot.leftSensorArm.setPosition(0.2);
-                        sleep(300);
-                        robot.rightSensorArm.setPosition(1.0);
-                        robot.leftSensorArm.setPosition(0.0);
-                    } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
-                        robot.rightSensorArm.setPosition(0.0);
-                        sleep(500);
-                        robot.rightSensorArm.setPosition(0.8);
-                        robot.leftSensorArm.setPosition(0.2);
-                        sleep(300);
-                        robot.rightSensorArm.setPosition(1.0);
-                        robot.leftSensorArm.setPosition(0.0);
+                    robot.leftSensorArm.setPosition(0.7);
+                    sleep(500);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
+                } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
+                    robot.rightSensorArm.setPosition(0.2);
+                    sleep(500);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
                 } else {
-                        //couldn't find gold - retract both and drive forward to hit center
-                        robot.rightSensorArm.setPosition(0.8);
-                        robot.leftSensorArm.setPosition(0.2);
-                        sleep(300);
-                        robot.rightSensorArm.setPosition(1.0);
-                        robot.leftSensorArm.setPosition(0.0);
-                        sleep(300);
-                        encoderDrive(driveSpeed,"forward",5,3);
-                        encoderDrive(driveSpeed,"backward",5,3);
-                    }
-
-
-//                    if (leftArmFoundMineral && robot.leftSensorArmColor.blue() < 29) {
-//                        robot.leftSensorArm.setPosition(1.0);
-//                        sleep(500);
-//                        robot.leftSensorArm.setPosition(0.0);
-//                        robot.rightSensorArm.setPosition(1.0);
-//                    } else if (rightArmFoundMineral && robot.rightSensorArmColor.blue() < 29) {
-//                        robot.rightSensorArm.setPosition(0.0);
-//                        sleep(500);
-//                        robot.rightSensorArm.setPosition(1.0);
-//                        robot.leftSensorArm.setPosition(0.0);
-//                    } else {
-//                        //couldn't find gold - retract both and drive forward to hit center
-//                        robot.rightSensorArm.setPosition(1.0);
-//                        robot.leftSensorArm.setPosition(0.0);
-//                        encoderDrive(driveSpeed,"forward",3,2);
-//                        encoderDrive(driveSpeed,"backward",3,2);
-//                    }
-
-                //move backwards so we don't hit minerals
-                //encoderDrive(driveSpeed, "backward", 2, 2);
+                    //couldn't find gold - retract both and drive forward to hit center
+                    robot.rightSensorArm.setPosition(0.5);
+                    robot.leftSensorArm.setPosition(0.5);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
+//                    sleep(500);
+                    encoderDrive(driveSpeed,"forward",5,3);
+                    encoderDrive(driveSpeed,"backward",5,3);
+                }
                 /*
                  *
                  * DEPOT SPECIFIC CODE
@@ -291,7 +262,7 @@ public class AutoDepotBlue extends LinearOpMode {
                  */
                 //This is depot so extend arm to drop marker
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armDriveMotor.setTargetPosition(200);
+                robot.armDriveMotor.setTargetPosition(50);
                 robot.armDriveMotor.setPower(0.9);
 
 //                while (opModeIsActive() && robot.armDriveMotor.isBusy()) {
@@ -301,15 +272,6 @@ public class AutoDepotBlue extends LinearOpMode {
 
                 robot.extenderHexMotor.setPower(1.0);
                 robot.extenderHexMotor.setTargetPosition(-1800);
-//                    robot.extenderHexMotor.setPower(0.5);
-
-//                while (opModeIsActive()) {
-////                    robot.armDriveMotor.setPower(0.9);
-////                    robot.armDriveMotor.setTargetPosition(400);
-////                    robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                    telemetry.addData("Extending Arm", robot.extenderHexMotor.getCurrentPosition());
-//                    telemetry.update();
-//                }
 
                 telemetry.addData("extending",0);
 
@@ -321,7 +283,7 @@ public class AutoDepotBlue extends LinearOpMode {
                 //eject marker
                 telemetry.addData("ejecting",0);
                 telemetry.update();
-                robot.collectorHexMotor.setPower(-0.7);
+                robot.collectorHexMotor.setPower(-1.0);
                 robot.armDriveMotor.setTargetPosition(10);
                 sleep(1000);
 
@@ -331,7 +293,7 @@ public class AutoDepotBlue extends LinearOpMode {
 //                //retract arm
                 robot.extenderHexMotor.setPower(1.0);
                 robot.extenderHexMotor.setTargetPosition(-200);
-                sleep(2000);
+                sleep(1500);
                 //or maybe
                 //robot.armDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 //                sleep(2000);
@@ -339,12 +301,12 @@ public class AutoDepotBlue extends LinearOpMode {
                 encoderDrive(driveSpeed, "left",38, 5);
                 encoderDrive(driveSpeed, "clockwise",44, 5);
                 robot.armDriveMotor.setPower(0.4);
-                robot.armDriveMotor.setTargetPosition(300);
+                robot.armDriveMotor.setTargetPosition(50);
                 robot.extenderHexMotor.setPower(1.0);
                 robot.extenderHexMotor.setTargetPosition(-1500);
 
                 robot.armDriveMotor.setPower(0.1);
-                sleep(3000);
+                sleep(1000);
                 robot.armDriveMotor.setTargetPosition(10);
                 sleep(20000);
 

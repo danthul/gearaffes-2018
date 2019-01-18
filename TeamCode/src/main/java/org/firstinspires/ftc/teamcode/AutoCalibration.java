@@ -59,7 +59,7 @@ public class AutoCalibration extends LinearOpMode {
     private double rightMineralSensorDistance;
     private double leftArmPosition = 0.0;
     private double rightArmPosition = 1.0;
-    private double armSpeedIncrement = 0.04;
+    private double armSpeedIncrement = 0.02;
     private double blueLimit = 29;
     private double driveSpeed = 0.3;
 
@@ -86,6 +86,7 @@ public class AutoCalibration extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         telemetry.update();
+
         robot.extenderHexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -96,8 +97,8 @@ public class AutoCalibration extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //rightArmPosition = rightArmPosition - 0.005;
-            robot.leftSensorArm.setPosition(leftArmPosition);
-            robot.rightSensorArm.setPosition(rightArmPosition);
+//            robot.leftSensorArm.setPosition(leftArmPosition);
+//            robot.rightSensorArm.setPosition(rightArmPosition);
 
             sleep(50);
 
@@ -110,27 +111,27 @@ public class AutoCalibration extends LinearOpMode {
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
-                sleep(1000);
+                sleep(500);
 
                 // drive left to get off hook
-                telemetry.addData("left", 0);
-                encoderDrive(driveSpeed, "left", 3, 5);
+                telemetry.addData("left",0);
+                encoderDrive(driveSpeed, "left",3, 5);
 
                 //drive forward to clear hook
-                telemetry.addData("forward", 0);
+                telemetry.addData("forward",0);
                 encoderDrive(driveSpeed, "forward", 3, 5);
 
                 // spin to correct
-                telemetry.addData("counterClockwise", 0);
-                encoderDrive(driveSpeed, "counterClockwise", 1, 5);
+                telemetry.addData("counterClockwise",0);
+                encoderDrive(driveSpeed, "counterClockwise",1, 5);
 
 
                 //drive back to center
-                telemetry.addData("right", 0);
+                telemetry.addData("right",0);
                 encoderDrive(driveSpeed, "right", recenterDistance, 3);
 
                 //move forward to block
-                telemetry.addData("forward", 0);
+                telemetry.addData("forward",0);
                 encoderDrive(driveSpeed, "forward", 15.5, 3);
 
                 if (Double.isNaN(robot.centerSensorDistance.getDistance(DistanceUnit.CM)) || robot.centerSensorDistance.getDistance(DistanceUnit.CM) > 15) {
@@ -144,12 +145,12 @@ public class AutoCalibration extends LinearOpMode {
                     encoderDrive(driveSpeed, "forward", 1.0, 3);
                 }
 
-                leftArmPosition = 0.5;
-                rightArmPosition = 0.5;
+                leftArmPosition = 0.25;
+                rightArmPosition = 0.75;
 
                 while (opModeIsActive()
                         && ((!leftArmFoundMineral || !rightArmFoundMineral)
-                        && leftArmPosition <= 1.0 && rightArmPosition >= 0)) {
+                        && leftArmPosition <= 0.5 && rightArmPosition >= 0.5)) {
                     /* left arm sensor - starts at 0 fully extended is 1 */
                     leftMineralSensorDistance = robot.leftSensorArmDistance.getDistance(DistanceUnit.CM);
                     if (!Double.isNaN(leftMineralSensorDistance)) {
@@ -181,21 +182,21 @@ public class AutoCalibration extends LinearOpMode {
                     sleep(300);
                     idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
                 }
-                if (leftMineralSensorDistance > 30) {
-                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 1.25);
-                    robot.leftSensorArm.setPosition(leftArmPosition);
-                } else if (leftMineralSensorDistance > 15) {
-                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
-                    robot.leftSensorArm.setPosition(leftArmPosition);
-                }
-
-                if (rightMineralSensorDistance > 30) {
-                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 1.25);
-                    robot.rightSensorArm.setPosition(rightArmPosition);
-                } else if (rightMineralSensorDistance > 15) {
-                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
-                    robot.rightSensorArm.setPosition(rightArmPosition);
-                }
+//                if (leftMineralSensorDistance > 30) {
+//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.75);
+//                    robot.leftSensorArm.setPosition(leftArmPosition);
+//                } else if (leftMineralSensorDistance > 15) {
+//                    leftArmPosition = leftArmPosition + (armSpeedIncrement * 0.4);
+//                    robot.leftSensorArm.setPosition(leftArmPosition);
+//                }
+//
+//                if (rightMineralSensorDistance > 30) {
+//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.75);
+//                    robot.rightSensorArm.setPosition(rightArmPosition);
+//                } else if (rightMineralSensorDistance > 15) {
+//                    rightArmPosition = rightArmPosition - (armSpeedIncrement * 0.4);
+//                    robot.rightSensorArm.setPosition(rightArmPosition);
+//                }
 
 //                    sleep(1000);
                 //we now have minerals in left and right - if one is gold knock it off if both are gold ignore
@@ -231,6 +232,28 @@ public class AutoCalibration extends LinearOpMode {
 //                telemetry.addData("rightColor", robot.rightSensorArmColor.blue());
                 telemetry.addData("rightSaturation", rightHSVValues[1]);
                 telemetry.update();
+                sleep(300);
+
+
+                if (leftHSVValues[1] > centerHSVValues[1] && leftHSVValues[1] > rightHSVValues[1]) {
+                    robot.leftSensorArm.setPosition(0.7);
+                    sleep(500);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
+                } else if (rightHSVValues[1] > centerHSVValues[1] && rightHSVValues[1] > leftHSVValues[1]) {
+                    robot.rightSensorArm.setPosition(0.2);
+                    sleep(500);
+                    robot.rightSensorArm.setPosition(1.0);
+                    robot.leftSensorArm.setPosition(0.0);
+                } else {
+                    //couldn't find gold - retract both and drive forward to hit center
+                    robot.rightSensorArm.setPosition(0.5);
+                    robot.leftSensorArm.setPosition(0.5);
+//                    sleep(500);
+                    encoderDrive(driveSpeed,"forward",5,3);
+                    encoderDrive(driveSpeed,"backward",5,3);
+                }
+
                 sleep(28000);
                 idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
             }
