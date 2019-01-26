@@ -44,7 +44,7 @@ public class AutoDepotRed extends LinearOpMode {
     HardwareRobot robot   = new HardwareRobot();
 
     //this is the distance it corrects after driving off hook and moving forward
-    private double recenterDistance = 4.0;
+    private double recenterDistance = 2.0;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
@@ -218,7 +218,7 @@ public class AutoDepotRed extends LinearOpMode {
 
                 //Extend arm to drop marker - first raise arm a little
                 robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armDriveMotor.setTargetPosition(50);
+                robot.armDriveMotor.setTargetPosition(30);
                 robot.armDriveMotor.setPower(0.4);
 
                 //then extend arm for 4 seconds to -1800
@@ -256,7 +256,7 @@ public class AutoDepotRed extends LinearOpMode {
 
                 //lower arm slowly
                 robot.armDriveMotor.setPower(0.1);
-                robot.armDriveMotor.setTargetPosition(10);
+                robot.armDriveMotor.setTargetPosition(0);
                 sleep(20000);
 
             }

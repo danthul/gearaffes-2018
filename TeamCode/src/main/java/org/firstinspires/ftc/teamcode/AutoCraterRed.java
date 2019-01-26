@@ -255,7 +255,7 @@ public class AutoCraterRed extends LinearOpMode {
 
                 //slowly lower arm
                 robot.armDriveMotor.setPower(0.1);
-                robot.armDriveMotor.setTargetPosition(10);
+                robot.armDriveMotor.setTargetPosition(0);
 
                 sleep(20000);
             }
