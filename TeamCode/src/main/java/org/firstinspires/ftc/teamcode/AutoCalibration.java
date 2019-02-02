@@ -44,7 +44,7 @@ public class AutoCalibration extends LinearOpMode {
     HardwareRobot robot   = new HardwareRobot();
 
     //this is the distance it corrects after driving off hook and moving forward
-    private double recenterDistance = 4.0;
+    private double recenterDistance = 2.5;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
@@ -87,8 +87,9 @@ public class AutoCalibration extends LinearOpMode {
             robot.elevatorMotor.setPower(-0.4);
             if (robot.elevatorLimitTop.getState()) {
 //                telemetry.addData("Elevator", "Lowering from hook");
+                robot.armDriveMotor.setPower(-0.2);
             } else {
-
+                robot.armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
@@ -205,7 +206,7 @@ public class AutoCalibration extends LinearOpMode {
                 telemetry.addData("We think gold is in: ", position);
                 telemetry.update();
 
-                sleep(28000);
+                sleep(2800000);
                 idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
             }
         }

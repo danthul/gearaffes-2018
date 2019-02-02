@@ -88,9 +88,9 @@ public class AutoCraterRed extends LinearOpMode {
             //raise elevator
             robot.elevatorMotor.setPower(-0.4);
             if (robot.elevatorLimitTop.getState()) {
-//                telemetry.addData("Elevator", "Lowering from hook");
+                robot.armDriveMotor.setPower(-0.2);
             } else {
-
+                robot.armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.elevatorMotor.setPower(0.0);
 
                 //give it a half second to make sure elevator has stopped
