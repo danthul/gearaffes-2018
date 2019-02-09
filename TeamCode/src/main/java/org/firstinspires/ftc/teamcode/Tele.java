@@ -49,17 +49,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="testfordrivetrain", group="Iterative Opmode")
+@TeleOp(name="Tele", group="Iterative Opmode")
 
-public class testfordrivetrain extends OpMode
+public class Tele extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private HardwareRobot robot = new HardwareRobot();
     double elevatorPower;
-    double elevatorHighPower = 1.0;
-    double elevatorLowPower = 0.4;
-    double maxSpeed = 0.5;
+    double elevatorMaxPower = 1.0;
+    boolean elevatorXPressed = false;
+    double maxSpeed = 0.6;
     double armDrivePower = 0;
     int armStopPosition;
     int armExtendStopPosition;
@@ -118,10 +118,10 @@ public class testfordrivetrain extends OpMode
     public void loop() {
 
         /* Drive train **/
-        if (gamepad1.right_trigger > 0) {
+        if (gamepad1.right_trigger > 0 || gamepad2.right_bumper) {
             maxSpeed = 0.2;
         } else {
-            maxSpeed = 0.5;
+            maxSpeed = 0.6;
         }
         robot.leftFrontDrive.setPower(normalize(-gamepad1.left_stick_y + gamepad1.right_stick_x + gamepad1.left_stick_x) * maxSpeed);
         robot.rightFrontDrive.setPower(normalize(-gamepad1.left_stick_y - gamepad1.right_stick_x - gamepad1.left_stick_x) * maxSpeed);
@@ -131,22 +131,27 @@ public class testfordrivetrain extends OpMode
 
         /* Elevator section **/
         if(gamepad1.y && robot.elevatorLimitTop.getState()) {
-            //if top sensor isn't hit and y is pressed, move elevator up at low power
-            elevatorPower = -elevatorLowPower;
+            //if top sensor isn't hit and y is pressed, move elevator up with power
+            elevatorPower = -elevatorMaxPower;
+            elevatorXPressed = false;
         } else if (gamepad1.a && robot.elevatorLimitBottom.getState()) {
-            //if bottom sensor isn't hit and a is pressed, move elevator down at low power
-            elevatorPower = elevatorLowPower;
-        } else if (gamepad1.x && robot.elevatorLimitBottom.getState()) {
-            //if bottom sensor isn't hit and x is pressed, move elevator down at high power
-            elevatorPower = elevatorHighPower;
-        } else if (gamepad1.b && robot.elevatorLimitTop.getState()) {
-            //if bottom sensor isn't hit and x is pressed, move elevator down at high power
-            elevatorPower = -elevatorHighPower;
+            //if bottom sensor isn't hit and a is pressed, move elevator down with power
+            elevatorPower = elevatorMaxPower;
+            elevatorXPressed = false;
+        } else if (gamepad1.x && robot.elevatorLimitTop.getState()) {
+            //if top sensor isn't hit and x is pressed, move elevator up to position
+           elevatorPower = -elevatorMaxPower;
+           elevatorXPressed = true;
         } else {
-            elevatorPower = 0;
+            if (!elevatorXPressed) {
+                elevatorPower = 0;
+            }
+        }
+        //reset elevatorXPressed if top limit is reached
+        if(!robot.elevatorLimitTop.getState() && elevatorXPressed) {
+            elevatorXPressed = false;
         }
         robot.elevatorMotor.setPower(elevatorPower);
-
 
         // range between 0 and -1500
 
@@ -154,7 +159,7 @@ public class testfordrivetrain extends OpMode
             armStopPosition = robot.armDriveMotor.getCurrentPosition();
           //lowering arm so lower power
             robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            armDrivePower = -0.1;
+            armDrivePower = -0.25;
         } else if (gamepad2.right_stick_y < 0){
             if (robot.armDriveMotor.getCurrentPosition() < 1900) {
                 armStopPosition = robot.armDriveMotor.getCurrentPosition();
@@ -168,7 +173,7 @@ public class testfordrivetrain extends OpMode
         } else {
             robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.armDriveMotor.setTargetPosition(armStopPosition);
-            armDrivePower = 0.15;
+            armDrivePower = 0.25;
         }
 
         robot.armDriveMotor.setPower(armDrivePower);
@@ -191,14 +196,14 @@ public class testfordrivetrain extends OpMode
             armExtendStopPosition = robot.extenderHexMotor.getCurrentPosition();
             //if y is pressed arm will extend to 1000
         } else if (gamepad2.y ){
-            armExtendStopPosition = -1200;
+            armExtendStopPosition = -1100;
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
             robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
 
             //set arm stop position to drive location as arm is being extended/retracted on pressing Y
             if (gamepad2.right_stick_y == 0) {
-                armStopPosition = 1200;
+                armStopPosition = 1350;
             }
         } else {
             //if (!robot.extenderHexMotor.isBusy()) {

@@ -38,14 +38,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@Autonomous(name="AutoDepotBlue", group="Linear Opmode")
+@Autonomous(name="AutoCrater", group="Linear Opmode")
 //@Disabled
-public class AutoDepotBlue extends LinearOpMode {
+public class AutoCrater extends LinearOpMode {
 
     HardwareRobot robot   = new HardwareRobot();
 
     //this is the distance it corrects after driving off hook and moving forward
     private double recenterDistance = 4.0;
+
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
@@ -55,7 +56,7 @@ public class AutoDepotBlue extends LinearOpMode {
     private double leftArmPosition = 0.0;
     private double rightArmPosition = 1.0;
     private double armSpeedIncrement = 0.02;
-    private double driveSpeed = 0.3;
+    private double driveSpeed = 0.4;
 
     //colors
     // hsvValues is an array that will hold the hue, saturation, and value information.
@@ -87,7 +88,6 @@ public class AutoDepotBlue extends LinearOpMode {
             //raise elevator
             robot.elevatorMotor.setPower(-0.4);
             if (robot.elevatorLimitTop.getState()) {
-//                telemetry.addData("Elevator", "Lowering from hook");
                 robot.armDriveMotor.setPower(-0.2);
             } else {
                 robot.armDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -104,18 +104,23 @@ public class AutoDepotBlue extends LinearOpMode {
                 telemetry.addData("forward",0);
                 encoderDrive(driveSpeed, "forward", 3, 5);
 
+                //lower elevator so we don't clip the lander
+                robot.elevatorMotor.setPower(0.5);
+
                 // spin to correct
                 telemetry.addData("counterClockwise",0);
                 encoderDrive(driveSpeed, "counterClockwise",1, 5);
-
 
                 //drive back to center
                 telemetry.addData("right",0);
                 encoderDrive(driveSpeed, "right", recenterDistance, 3);
 
+                //turn off elevator
+                robot.elevatorMotor.setPower(0.0);
+
                 //move forward to block
                 telemetry.addData("forward",0);
-                encoderDrive(driveSpeed, "forward", 15.5, 3);
+                encoderDrive(driveSpeed, "forward", 14.5, 3);
 
                 if (Double.isNaN(robot.centerSensorDistance.getDistance(DistanceUnit.CM)) || robot.centerSensorDistance.getDistance(DistanceUnit.CM) > 15) {
                     telemetry.addData("driving forward", robot.centerSensorDistance.getDistance(DistanceUnit.CM));
@@ -128,8 +133,8 @@ public class AutoDepotBlue extends LinearOpMode {
                     encoderDrive(driveSpeed, "forward", 1.0, 3);
                 }
 
-                leftArmPosition = 0.25;
-                rightArmPosition = 0.75;
+                leftArmPosition = 0.3;
+                rightArmPosition = 0.7;
 
                 while (opModeIsActive()
                         && ((!leftArmFoundMineral || !rightArmFoundMineral)
@@ -212,55 +217,58 @@ public class AutoDepotBlue extends LinearOpMode {
                     encoderDrive(driveSpeed,"forward",5,3);
                     encoderDrive(driveSpeed,"backward",5,3);
                 }
+
+                // increase speed
+                driveSpeed = 0.5;
+
                 /*
                  *
-                 * DEPOT SPECIFIC CODE
+                 * CRATER SPECIFIC CODE
                  *
                  */
 
-                //Extend arm to drop marker - first raise arm a little
-                robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armDriveMotor.setTargetPosition(50);
-                robot.armDriveMotor.setPower(0.4);
+                //drive to wall, turn around then drive towards depot
+                encoderDrive(driveSpeed, "left",43, 5);
+                encoderDrive(driveSpeed, "clockwise",42, 5);
+                encoderDrive(driveSpeed, "right",2,2);
+                encoderDrive(driveSpeed, "forward",10,2);
 
-                //then extend arm for 4 seconds to -1800
+                //extending arm to drop marker
+                robot.armDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.armDriveMotor.setTargetPosition(300);
+                robot.armDriveMotor.setPower(0.9);
+
+                //extend arm for 3 seconds to target position
                 robot.extenderHexMotor.setPower(1.0);
                 robot.extenderHexMotor.setTargetPosition(-1800);
+                encoderDrive(driveSpeed, "right",2, 2);
                 sleep(4000);
 
                 //eject marker for 1.5 seconds
                 robot.collectorHexMotor.setPower(-1.0);
-                robot.armDriveMotor.setPower(0.1);
-                robot.armDriveMotor.setTargetPosition(10);
-                sleep(1500);
+                robot.armDriveMotor.setPower(0.2);
+                robot.armDriveMotor.setTargetPosition(300);
+                sleep(2500);
 
                 //turn off collector
                 robot.collectorHexMotor.setPower(0.0);
 
-                //retract arm
-                robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-200);
-                sleep(1500);
-
-                //now drive to wall and turn around
-                encoderDrive(driveSpeed, "left",38, 5);
-                encoderDrive(driveSpeed, "clockwise",44, 5);
-
-                //raise arm slightly before extending
-                robot.armDriveMotor.setPower(0.4);
-                robot.armDriveMotor.setTargetPosition(30);
-
-                //extend arm for 1 second
-                robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-1500);
+                //move arm up
+                robot.armDriveMotor.setPower(0.6);
+                robot.armDriveMotor.setTargetPosition(1200);
                 sleep(1000);
 
+                //turn robot around towards crater
+                encoderDrive(driveSpeed, "counterClockwise",33.5, 5);
 
-                //lower arm slowly
-                robot.armDriveMotor.setPower(0.1);
-                robot.armDriveMotor.setTargetPosition(0);
+                //move closer to crater and extend arm into crater
+                encoderDrive(driveSpeed, "forward",18, 5);
+
+                //slowly lower arm
+                robot.armDriveMotor.setPower(0.2);
+                robot.armDriveMotor.setTargetPosition(300);
+
                 sleep(20000);
-
             }
             idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
         }
@@ -283,7 +291,7 @@ public class AutoDepotBlue extends LinearOpMode {
         final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
         final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
         final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-                          (WHEEL_DIAMETER_INCHES * 3.1415);
+                (WHEEL_DIAMETER_INCHES * 3.1415);
         int newLeftBackTarget;
         int newLeftFrontTarget;
         int newRightBackTarget;
@@ -384,18 +392,18 @@ public class AutoDepotBlue extends LinearOpMode {
                     (robot.leftFrontDrive.isBusy() && robot.rightBackDrive.isBusy() && robot.leftBackDrive.isBusy() && robot.rightFrontDrive.isBusy() )) {
 
                 // Display it for the driver.
-//                telemetry.addData("Target",  "Running to %7d :%7d :%7d :%7d",
-//                        newLeftFrontTarget,
-//                        newRightBackTarget,
-//                        newLeftBackTarget,
-//                        newRightFrontTarget);
-//                telemetry.addData("Current",  "Running at %7d :%7d :%7d :%7d",
-//                        robot.leftFrontDrive.getCurrentPosition(),
-//                        robot.rightBackDrive.getCurrentPosition(),
-//                        robot.leftBackDrive.getCurrentPosition(),
-//                        robot.rightFrontDrive.getCurrentPosition()
-//                );
-//                telemetry.update();
+                telemetry.addData("Target",  "Running to %7d :%7d :%7d :%7d",
+                        newLeftFrontTarget,
+                        newRightBackTarget,
+                        newLeftBackTarget,
+                        newRightFrontTarget);
+                telemetry.addData("Current",  "Running at %7d :%7d :%7d :%7d",
+                        robot.leftFrontDrive.getCurrentPosition(),
+                        robot.rightBackDrive.getCurrentPosition(),
+                        robot.leftBackDrive.getCurrentPosition(),
+                        robot.rightFrontDrive.getCurrentPosition()
+                );
+                telemetry.update();
                 idle(); //We need to call the idle() method at the end of any looping we do to share the phone's processor with other processes on the phone.
             }
 
@@ -411,7 +419,7 @@ public class AutoDepotBlue extends LinearOpMode {
             robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-           // sleep(250);   // optional pause after each move
+            // sleep(250);   // optional pause after each move
         }
     }
 }
