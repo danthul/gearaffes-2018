@@ -196,14 +196,14 @@ public class Tele extends OpMode
             armExtendStopPosition = robot.extenderHexMotor.getCurrentPosition();
             //if y is pressed arm will extend to 1000
         } else if (gamepad2.y ){
-            armExtendStopPosition = -1100;
+            armExtendStopPosition = -1200;
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.extenderHexMotor.setPower(1.0);
+            robot.extenderHexMotor.setPower(0.8);
             robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
 
             //set arm stop position to drive location as arm is being extended/retracted on pressing Y
             if (gamepad2.right_stick_y == 0) {
-                armStopPosition = 1350;
+                armStopPosition = 1150;
             }
         } else {
             //if (!robot.extenderHexMotor.isBusy()) {
