@@ -214,7 +214,7 @@ public class AutoDepot extends LinearOpMode {
                     //couldn't find gold - retract both and drive forward to hit center
                     robot.rightSensorArm.setPosition(1.0);
                     robot.leftSensorArm.setPosition(0.0);
-                    encoderDrive(driveSpeed,"forward",5,3);
+                    encoderDrive(driveSpeed,"forward",7,3);
                     encoderDrive(driveSpeed,"backward",5,3);
                 }
 
@@ -254,6 +254,8 @@ public class AutoDepot extends LinearOpMode {
                 //now drive to wall and turn around
                 encoderDrive(driveSpeed, "left",43, 5);
                 encoderDrive(driveSpeed, "clockwise",42, 5);
+                encoderDrive(driveSpeed, "right",4, 1);
+
 
 
                 //raise arm slightly before extending

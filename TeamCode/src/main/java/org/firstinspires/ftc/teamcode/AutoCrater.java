@@ -240,15 +240,15 @@ public class AutoCrater extends LinearOpMode {
 
                 //extend arm for 3 seconds to target position
                 robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-1800);
-                encoderDrive(driveSpeed, "right",2, 2);
+                robot.extenderHexMotor.setTargetPosition(-1600);
+                //encoderDrive(driveSpeed, "right",2, 2);
                 sleep(4000);
 
                 //eject marker for 1.5 seconds
                 robot.collectorHexMotor.setPower(-1.0);
                 robot.armDriveMotor.setPower(0.2);
                 robot.armDriveMotor.setTargetPosition(300);
-                sleep(2500);
+                sleep(1000);
 
                 //turn off collector
                 robot.collectorHexMotor.setPower(0.0);
@@ -257,6 +257,9 @@ public class AutoCrater extends LinearOpMode {
                 robot.armDriveMotor.setPower(0.6);
                 robot.armDriveMotor.setTargetPosition(1200);
                 sleep(1000);
+
+                //move closer to crater and extend arm into crater
+                encoderDrive(driveSpeed, "backward",4, 4);
 
                 //turn robot around towards crater
                 encoderDrive(driveSpeed, "counterClockwise",33.5, 5);
