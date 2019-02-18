@@ -65,7 +65,7 @@ public class Tele extends OpMode
     int armStopPosition;
     boolean isExtenderBusy = false;
     boolean isArmBusy = false;
-    int armDriveMaxExtension = -6600;
+    int armDriveMaxExtension = -6400;
     int armExtendYStopPosition = -4000;
 
 
@@ -201,7 +201,7 @@ public class Tele extends OpMode
         } else if (gamepad2.y ){
             armExtendStopPosition = armExtendYStopPosition;
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.extenderHexMotor.setPower(0.8);
+            robot.extenderHexMotor.setPower(0.5);
             robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
 
             //set arm stop position to drive location as arm is being extended/retracted on pressing Y
