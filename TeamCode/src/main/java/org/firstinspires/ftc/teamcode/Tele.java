@@ -65,7 +65,7 @@ public class Tele extends OpMode
     int armStopPosition;
     boolean isExtenderBusy = false;
     boolean isArmBusy = false;
-    int armDriveMaxExtension = -6900;
+    int armDriveMaxExtension = -6600;
     int armExtendYStopPosition = -4000;
 
 
