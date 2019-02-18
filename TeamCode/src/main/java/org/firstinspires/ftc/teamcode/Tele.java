@@ -61,10 +61,13 @@ public class Tele extends OpMode
     boolean elevatorXPressed = false;
     double maxSpeed = 0.6;
     double armDrivePower = 0;
-    int armStopPosition;
     int armExtendStopPosition;
+    int armStopPosition;
     boolean isExtenderBusy = false;
     boolean isArmBusy = false;
+    int armDriveMaxExtension = -6900;
+    int armExtendYStopPosition = -4000;
+
 
     double normalize(double number) {
         if (number > 1) {
@@ -184,10 +187,10 @@ public class Tele extends OpMode
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(1.0);
             robot.extenderHexMotor.setTargetPosition(0);
-        } else if (robot.extenderHexMotor.getCurrentPosition() < -1900) {
+        } else if (robot.extenderHexMotor.getCurrentPosition() < armDriveMaxExtension) {
                 robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-1900);
+                robot.extenderHexMotor.setTargetPosition(armDriveMaxExtension);
         } else if (gamepad2.left_stick_y != 0) {
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if (robot.extenderHexMotor.getCurrentPosition() < 0 || gamepad2.left_stick_y < 0) {
@@ -196,7 +199,7 @@ public class Tele extends OpMode
             armExtendStopPosition = robot.extenderHexMotor.getCurrentPosition();
             //if y is pressed arm will extend to 1000
         } else if (gamepad2.y ){
-            armExtendStopPosition = -1200;
+            armExtendStopPosition = armExtendYStopPosition;
             robot.extenderHexMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extenderHexMotor.setPower(0.8);
             robot.extenderHexMotor.setTargetPosition(armExtendStopPosition);
