@@ -240,9 +240,9 @@ public class AutoCrater extends LinearOpMode {
 
                 //extend arm for 3 seconds to target position
                 robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-1600);
+                robot.extenderHexMotor.setTargetPosition(-5500);
                 //encoderDrive(driveSpeed, "right",2, 2);
-                sleep(4000);
+                sleep(1500);
 
                 //eject marker for 1.5 seconds
                 robot.collectorHexMotor.setPower(-1.0);

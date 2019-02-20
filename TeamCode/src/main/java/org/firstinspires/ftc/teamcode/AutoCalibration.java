@@ -44,7 +44,7 @@ public class AutoCalibration extends LinearOpMode {
     HardwareRobot robot   = new HardwareRobot();
 
     //this is the distance it corrects after driving off hook and moving forward
-    private double recenterDistance = 2.5;
+    private double recenterDistance = 4.0;
     private ElapsedTime runtime = new ElapsedTime();
     private boolean leftArmFoundMineral = false;
     private boolean rightArmFoundMineral = false;
