@@ -228,6 +228,7 @@ public class AutoCrater extends LinearOpMode {
                  */
 
                 //drive to wall, turn around then drive towards depot
+                encoderDrive(driveSpeed, "backward",2, 1);
                 encoderDrive(driveSpeed, "left",43, 5);
                 encoderDrive(driveSpeed, "clockwise",42, 5);
                 encoderDrive(driveSpeed, "right",2,2);

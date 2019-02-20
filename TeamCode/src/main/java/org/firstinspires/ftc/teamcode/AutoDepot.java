@@ -234,7 +234,7 @@ public class AutoDepot extends LinearOpMode {
 
                 //then extend arm for 4 seconds to -1800
                 robot.extenderHexMotor.setPower(1.0);
-                robot.extenderHexMotor.setTargetPosition(-5400);
+                robot.extenderHexMotor.setTargetPosition(-6000);
                 sleep(1500);
 
                 //eject marker for 1.5 seconds
@@ -252,6 +252,7 @@ public class AutoDepot extends LinearOpMode {
                 sleep(1000);
 
                 //now drive to wall and turn around
+                encoderDrive(driveSpeed, "backward",2, 1);
                 encoderDrive(driveSpeed, "left",43, 5);
                 encoderDrive(driveSpeed, "clockwise",42, 5);
                 encoderDrive(driveSpeed, "right",4, 1);
